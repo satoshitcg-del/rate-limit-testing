@@ -1,0 +1,19 @@
+{
+  "name": "rate-limit-testing",
+  "version": "1.0.0",
+  "description": "API Rate Limit Testing with Playwright",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:auth": "playwright test tests/rate-limit/auth.spec.ts",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report"
+  },
+  "keywords": ["playwright", "api", "rate-limit", "testing"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}

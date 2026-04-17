@@ -1,0 +1,1946 @@
+{
+  "info": {
+    "_postman_id": "5b7a36a7-91b3-41d1-87c0-0cc218610335",
+    "name": "Rate limit",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51245810",
+    "_collection_link": "https://go.postman.co/collection/51245810-5b7a36a7-91b3-41d1-87c0-0cc218610335?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/auth/customer/verify",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "accept",
+            "value": "application/json"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer undefined"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"eiji\",\"password\":\"0897421942^@Earth\",\"captcha\":\"1234\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/auth/customer/verify",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "auth",
+            "customer",
+            "verify"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/auth/customer/sign-in",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "accept",
+            "value": "application/json"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMDE2NDcyOTEzOTc1IiwiaXNfYWNjZXNzX2FwaSI6ZmFsc2UsInBlcm1pc3Npb25zIjp7IklOVk9JQ0UiOlsiRE9XTkxPQURfUERGIl0sIlNVQl9BQ0NPVU5UIjpbIlZJRVciLCJDUkVBVEUiLCJVUERBVEUiXX0sInJvbGUiOiJDVVNUT01FUiIsInVzZXJfaWQiOiI2OWQ0ZGQ3YjE1ZjdlMTExZThhNzQ3MDMiLCJ1c2VyX25hbWUiOiJlaWppIn0.L9U6u7KZcPhvZRPf9EZo-UKIpyRxAfGZ37RjmZAuuLM"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"eiji\",\"password\":\"0897421942^@Earth\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/auth/customer/sign-in",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "auth",
+            "customer",
+            "sign-in"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/auth/verify/totp",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "accept",
+            "value": "application/json"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMDE4OTA3MjI1NzQ4IiwiaXNfYWNjZXNzX2FwaSI6ZmFsc2UsInBlcm1pc3Npb25zIjp7IklOVk9JQ0UiOlsiRE9XTkxPQURfUERGIl0sIlNVQl9BQ0NPVU5UIjpbIlZJRVciLCJDUkVBVEUiLCJVUERBVEUiXX0sInJvbGUiOiJDVVNUT01FUiIsInVzZXJfaWQiOiI2OWQ0ZGQ3YjE1ZjdlMTExZThhNzQ3MDMiLCJ1c2VyX25hbWUiOiJlaWppIn0.1id95rERzlLm8Ma6-QMaTFIl46csboUGphurmBU9lXQ"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"totp_key\":\"954900\",\"generate_token\":true}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/auth/verify/totp",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "auth",
+            "verify",
+            "totp"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=PARTIALPAID,DELIVERED,VERIFYPAYMENT&page=1&limit=25",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=PARTIALPAID,DELIVERED,VERIFYPAYMENT&page=1&limit=25",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v2",
+            "md",
+            "billing-note",
+            "customer"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "PARTIALPAID,DELIVERED,VERIFYPAYMENT"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/user/profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/user/profile",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "user",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/billing-note/customer?status=UNPAID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/billing-note/customer?status=UNPAID",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "billing-note",
+            "customer"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "UNPAID"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=VERIFYPAYMENT&page=1&limit=25",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=VERIFYPAYMENT&page=1&limit=25",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v2",
+            "md",
+            "billing-note",
+            "customer"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "VERIFYPAYMENT"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/billing-note/customer-export-all/PENDING",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/billing-note/customer-export-all/PENDING",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "billing-note",
+            "customer-export-all",
+            "PENDING"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/billing-note/customer-export-all/ALL",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/billing-note/customer-export-all/ALL",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "billing-note",
+            "customer-export-all",
+            "ALL"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/billing-note/customer-export-all/UNPAID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/billing-note/customer-export-all/UNPAID",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "billing-note",
+            "customer-export-all",
+            "UNPAID"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/billing-note/preview/69d4e2fe76faf342bd4a6322",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/billing-note/preview/69d4e2fe76faf342bd4a6322",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "billing-note",
+            "preview",
+            "69d4e2fe76faf342bd4a6322"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/billing-note/customer-export/69d4e2fe76faf342bd4a6322",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/billing-note/customer-export/69d4e2fe76faf342bd4a6322",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "billing-note",
+            "customer-export",
+            "69d4e2fe76faf342bd4a6322"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/billing-note/customer/invoice/69d4e2fe76faf342bd4a6322",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/billing-note/customer/invoice/69d4e2fe76faf342bd4a6322",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "billing-note",
+            "customer",
+            "invoice",
+            "69d4e2fe76faf342bd4a6322"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/system-file/invoice/slip",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/system-file/invoice/slip",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "system-file",
+            "invoice",
+            "slip"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/billing-note/payment/verify",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "accept",
+            "value": "application/json"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2MzQwMTE2NTkxNTY4MjUyIiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.IRKf3QHBDYGj5pcw01ysGw0EVIyLBqwrTdBWvJI0xwA"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"invoice_id\":\"69d4e2fe76faf342bd4a6325\",\"old_status\":\"DELIVERED\",\"amount\":1,\"files\":[{\"full_path\":\"https://ishef-accounting-assets-nonprod.s3.ap-southeast-1.amazonaws.com/system/slip/c5766bae-3c32-434e-8e85-254f337e73a7.jpg\",\"file_path\":\"system/slip/c5766bae-3c32-434e-8e85-254f337e73a7.jpg\",\"file_name\":\"c5766bae-3c32-434e-8e85-254f337e73a7.jpg\",\"file_ext\":\".jpg\",\"created_at\":\"2026-04-16T11:44:56Z\",\"updated_at\":\"2026-04-16T11:44:56Z\",\"file_name_preview\":\"photo_2026-04-09_17-37-09.jpg\",\"file_size\":39252}]}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/billing-note/payment/verify",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "billing-note",
+            "payment",
+            "verify"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=PAID&page=1&limit=25",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2NDI2NTI4NTA2NDE1MzA4IiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.dnpeOjd-3pVlKeNJocx4fUAA6YpSREpC5-76_jebnlM"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=PAID&page=1&limit=25",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v2",
+            "md",
+            "billing-note",
+            "customer"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "PAID"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=EXCEED&page=1&limit=25",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2NDI2NTI4NTA2NDE1MzA4IiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.dnpeOjd-3pVlKeNJocx4fUAA6YpSREpC5-76_jebnlM"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=EXCEED&page=1&limit=25",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v2",
+            "md",
+            "billing-note",
+            "customer"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "EXCEED"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=REFUND&page=1&limit=25",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2NDI2NTI4NTA2NDE1MzA4IiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.dnpeOjd-3pVlKeNJocx4fUAA6YpSREpC5-76_jebnlM"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=REFUND&page=1&limit=25",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v2",
+            "md",
+            "billing-note",
+            "customer"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "REFUND"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=VOID&page=1&limit=25",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2NDI2NTI4NTA2NDE1MzA4IiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.dnpeOjd-3pVlKeNJocx4fUAA6YpSREpC5-76_jebnlM"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=VOID&page=1&limit=25",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v2",
+            "md",
+            "billing-note",
+            "customer"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "VOID"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=&page=1&limit=25",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2NDI2NTI4NTA2NDE1MzA4IiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.dnpeOjd-3pVlKeNJocx4fUAA6YpSREpC5-76_jebnlM"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v2/md/billing-note/customer?status=&page=1&limit=25",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v2",
+            "md",
+            "billing-note",
+            "customer"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": ""
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/customer/sub-accounts?page=1&limit=25",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2NDI2NTI4NTA2NDE1MzA4IiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.dnpeOjd-3pVlKeNJocx4fUAA6YpSREpC5-76_jebnlM"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/customer/sub-accounts?page=1&limit=25",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "customer",
+            "sub-accounts"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://api-sit.askmebill.com/v1/md/auth/customer/logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept-Language",
+            "value": "en-US,en;q=0.9,th;q=0.8"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Origin",
+            "value": "https://sit.askmebill.com"
+          },
+          {
+            "key": "Referer",
+            "value": "https://sit.askmebill.com/"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-site"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "accept",
+            "value": "application/json"
+          },
+          {
+            "key": "authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc2NDI2NTI4NTA2NDE1MzA4IiwiaXNfYWNjZXNzX2FwaSI6dHJ1ZSwicGVybWlzc2lvbnMiOnsiSU5WT0lDRSI6WyJET1dOTE9BRF9QREYiXSwiU1VCX0FDQ09VTlQiOlsiVklFVyIsIkNSRUFURSIsIlVQREFURSJdfSwicm9sZSI6IkNVU1RPTUVSIiwidXNlcl9pZCI6IjY5ZDRkZDdiMTVmN2UxMTFlOGE3NDcwMyIsInVzZXJfbmFtZSI6ImVpamkifQ.dnpeOjd-3pVlKeNJocx4fUAA6YpSREpC5-76_jebnlM"
+          },
+          {
+            "key": "content-type",
+            "value": "application/json"
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://api-sit.askmebill.com/v1/md/auth/customer/logout",
+          "protocol": "https",
+          "host": [
+            "api-sit",
+            "askmebill",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "md",
+            "auth",
+            "customer",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

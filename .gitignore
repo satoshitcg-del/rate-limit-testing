@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Environment (contains secrets)
+.env
+.env.local
+.env.*.local
+.env.sit        # SIT credentials - DO NOT commit
+
+# Playwright
+test-results/
+test-results.json
+playwright-report/
+playwright/.cache/
+
+# Claude Code
+.agents/
+skills-lock.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+NOTES.md
+test.txt
