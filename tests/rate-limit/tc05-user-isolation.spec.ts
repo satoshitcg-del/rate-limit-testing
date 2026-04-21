@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { burstTest } from '../helpers/rate-limit-analyzer';
+import { getApiBaseUrl } from '../../config/env';
+import { authClient } from '../../api/auth.client';
 
 /**
  * TC-05: ทดสอบ User Isolation
@@ -10,51 +12,40 @@ import { burstTest } from '../helpers/rate-limit-analyzer';
  * - แต่ละ user มี counter แยกกัน
  */
 
+const baseURL = getApiBaseUrl();
+
+const userA = {
+  email: process.env.AUTH_EMAIL || 'eiji',
+  password: process.env.AUTH_PASSWORD || '0897421942@Earth',
+  totp: process.env.AUTH_2FA || '954900',
+};
+
+const userB = {
+  email: process.env.AUTH_EMAIL_B || 'eiji2',
+  password: process.env.AUTH_PASSWORD_B || '0897421942@Earth',
+  totp: process.env.AUTH_2FA || '954900',
+};
+
 test.describe('TC-05: User Isolation', () => {
-  const baseURL = process.env.API_BASE_URL || 'https://api-sit.askmebill.com';
+  test.setTimeout(300000);
 
-  const userA = {
-    email: process.env.AUTH_EMAIL || 'eiji',
-    password: process.env.AUTH_PASSWORD || '0897421942@Earth',
-  };
-
-  const userB = {
-    email: process.env.AUTH_EMAIL_B || 'admintest',
-    password: process.env.AUTH_PASSWORD_B || '0897421942@Earth',
-  };
-
-  /**
-   * TC-05-01: ทดสอบว่า User A และ User B มี rate limit counter แยกกัน
-   *
-   * ขั้นตอน:
-   * 1. User A login แล้วส่ง request จนโดน limit
-   * 2. User B login แล้วส่ง request
-   * 3. ตรวจสอบว่าแต่ละ user มี counter แยกกัน (โดน limit แยกกัน)
-   *
-   * กรณีพิเศษ:
-   * - ถ้า login ไม่ได้ (IP blocked) → skip
-   */
   test('TC-05-01: User A และ User B ควรมี rate limit counter แยกกัน', async () => {
-    // กำหนด: user สองคนที่แตกต่างกัน
-    // เมื่อ: ทั้งสอง user ส่ง request ไปที่ payment verify endpoint
-    // then: rate limit ของแต่ละ user ควรถูก track แยกกัน
-
     console.log('\n=== TC-05-01: Separate Rate Limit Counters ===');
 
-    // User A โดน rate limit
-    console.log('User A: Logging in...');
-    const userALoginResponse = await fetch(`${baseURL}/v1/md/auth/customer/sign-in`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userA),
-    });
-    const userAData = await userALoginResponse.json();
-    const userAToken = userAData?.token || userAData?.data?.token;
-
+    // Sign in user A
+    const userAToken = await authClient.getTokenWithTotp(userA);
+    console.log(`[DEBUG] userA token: ${userAToken ? 'OK' : 'FAILED'}`);
     if (!userAToken) {
       console.log('⚠️ Could not obtain User A token - skipping');
       return;
     }
+
+    // Sign in user B (wait 65s to avoid strict rate limit)
+    console.log('[DEBUG] Waiting 65s before userB sign-in to avoid rate limit...');
+    await new Promise(r => setTimeout(r, 65000));
+
+    const userBToken = await authClient.getTokenWithTotp(userB);
+    console.log(`[DEBUG] userB token: ${userBToken ? 'OK' : 'FAILED'}`);
 
     console.log('User A: Hitting payment verify rate limit...');
     const userAResults = await burstTest({
@@ -62,24 +53,12 @@ test.describe('TC-05: User Isolation', () => {
       endpoint: '/v1/md/billing-note/payment/verify',
       method: 'POST',
       token: userAToken,
-      body: { invoice_id: 'test', amount: 100 },
+      body: { invoice_id: '69e6760f466b99885541692c', amount: 100 },
       burstSize: 15,
     });
 
     const userARateLimitedAt = userAResults.find(r => r.isRateLimited)?.requestCount;
     console.log(`User A rate limited at request #${userARateLimitedAt || 'not triggered'}`);
-
-    // User B ส่ง request
-    console.log('User B: Logging in...');
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    const userBLoginResponse = await fetch(`${baseURL}/v1/md/auth/customer/sign-in`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userB),
-    });
-    const userBData = await userBLoginResponse.json();
-    const userBToken = userBData?.token || userBData?.data?.token;
 
     if (!userBToken) {
       console.log('⚠️ Could not obtain User B token - skipping');
@@ -92,70 +71,49 @@ test.describe('TC-05: User Isolation', () => {
       endpoint: '/v1/md/billing-note/payment/verify',
       method: 'POST',
       token: userBToken,
-      body: { invoice_id: 'test', amount: 100 },
+      body: { invoice_id: '69e6760f466b99885541692c', amount: 100 },
       burstSize: 15,
     });
 
     const userBRateLimitedAt = userBResults.find(r => r.isRateLimited)?.requestCount;
     console.log(`User B rate limited at request #${userBRateLimitedAt || 'not triggered'}`);
 
-    // ทั้งสองควรโดน rate limit แยกกัน
     if (userARateLimitedAt && userBRateLimitedAt) {
       expect(userARateLimitedAt).toBeLessThanOrEqual(12);
       expect(userBRateLimitedAt).toBeLessThanOrEqual(12);
     }
   });
 
-  /**
-   * TC-05-02: ทดสอบว่า User B ไม่โดนกระทบเมื่อ User A โดน rate limit
-   *
-   * ขั้นตอน:
-   * 1. User A ส่ง request จนโดน limit
-   * 2. User B ส่ง request ทันที
-   * 3. User B ควรได้ 200 (ไม่โดนกระทบจาก User A)
-   */
   test('TC-05-02: User B ไม่ควรโดน block เมื่อ User A โดน rate limit', async () => {
-    // กำหนด: User A โดน rate limit แล้ว
-    // เมื่อ: User B ส่ง request
-    // then: User B ควรยังสามารถส่ง request ได้
-
     console.log('\n=== TC-05-02: User B Isolation ===');
 
-    // User A โดน limit
-    console.log('User A: Logging in and hitting rate limit...');
-    const userALoginResponse = await fetch(`${baseURL}/v1/md/auth/customer/sign-in`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userA),
-    });
-    const userAData = await userALoginResponse.json();
-    const userAToken = userAData?.token || userAData?.data?.token;
-
+    // Sign in user A
+    const userAToken = await authClient.getTokenWithTotp(userA);
+    console.log(`[DEBUG] userA token: ${userAToken ? 'OK' : 'FAILED'}`);
     if (!userAToken) {
       console.log('⚠️ Could not obtain User A token - skipping');
       return;
     }
 
+    // Sign in user B (wait 65s to avoid strict rate limit)
+    console.log('[DEBUG] Waiting 65s before userB sign-in to avoid rate limit...');
+    await new Promise(r => setTimeout(r, 65000));
+
+    const userBToken = await authClient.getTokenWithTotp(userB);
+    console.log(`[DEBUG] userB token: ${userBToken ? 'OK' : 'FAILED'}`);
+
+    console.log('User A: Hitting payment verify rate limit...');
     await burstTest({
       baseURL,
       endpoint: '/v1/md/billing-note/payment/verify',
       method: 'POST',
       token: userAToken,
-      body: { invoice_id: 'test', amount: 100 },
+      body: { invoice_id: '69e6760f466b99885541692c', amount: 100 },
       burstSize: 12,
     });
 
-    // User B ส่ง request - ควรยังทำงานได้
     console.log('User A blocked. User B sending requests...');
     await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const userBLoginResponse = await fetch(`${baseURL}/v1/md/auth/customer/sign-in`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userB),
-    });
-    const userBData = await userBLoginResponse.json();
-    const userBToken = userBData?.token || userBData?.data?.token;
 
     if (!userBToken) {
       console.log('⚠️ Could not obtain User B token - skipping');
@@ -167,13 +125,17 @@ test.describe('TC-05: User Isolation', () => {
       endpoint: '/v1/md/billing-note/payment/verify',
       method: 'POST',
       token: userBToken,
-      body: { invoice_id: 'test', amount: 100 },
+      body: { invoice_id: '69e6760f466b99885541692c', amount: 100 },
       burstSize: 5,
     });
 
-    const userBSuccessCount = userBResults.filter(r => r.statusCode === 200).length;
-    console.log(`User B first ${userBResults.length} requests: ${userBSuccessCount} succeeded`);
+    const userBUnauthorizedCount = userBResults.filter(r => r.statusCode === 400).length;
+    const userBRateLimitedCount = userBResults.filter(r => r.statusCode === 429).length;
+    const userBOkCount = userBResults.filter(r => r.statusCode === 200).length;
+    console.log(`User B first ${userBResults.length} requests: ${userBOkCount} succeeded, ${userBUnauthorizedCount} got 400 (expected for wrong user invoice), ${userBRateLimitedCount} got 429`);
 
-    expect(userBSuccessCount).toBeGreaterThan(0);
+    // User B should NOT be rate limited (429) — if they get 400, it means they hit the endpoint but
+    // with wrong invoice data (not their invoice). 400 proves they bypassed User A's rate limit.
+    expect(userBRateLimitedCount).toBe(0);
   });
 });

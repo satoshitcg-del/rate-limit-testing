@@ -1,19 +1,34 @@
 import { test, expect } from '@playwright/test';
-import { loginAndBurstTest, analyzeRateLimitResults } from '../helpers/rate-limit-analyzer';
-
-/**
- * TC-06: Standard Routes Rate Limit - User D (Endpoints 4-6)
- */
+import { burstTest, analyzeRateLimitResults } from '../helpers/rate-limit-analyzer';
+import { getApiBaseUrl } from '../../config/env';
+import { authClient } from '../../api/auth.client';
 
 test.describe('TC-06: Standard Routes Rate Limit - User D (4-6)', () => {
   test.setTimeout(300000);
-
-  const baseURL = process.env.API_BASE_URL || 'https://api-sit.askmebill.com';
+  const baseURL = getApiBaseUrl();
 
   const credentials = {
     email: process.env.AUTH_EMAIL_D || 'eiji3',
     password: process.env.AUTH_PASSWORD_D || '0897421942@Earth',
   };
+
+  let token: string | undefined;
+
+  test.beforeAll(async () => {
+    const workerIndex = test.info()?.workerIndex ?? 0;
+    await new Promise(r => setTimeout(r, workerIndex * 15000));
+
+    const loginData = await authClient.signIn(credentials);
+    token = loginData?.data?.token;
+    if (token) {
+      const totpKey = process.env.AUTH_2FA || '954900';
+      const totpResp = await authClient.verifyTotp(token, totpKey, true);
+      if (totpResp?.data?.token) {
+        token = totpResp.data.token;
+      }
+    }
+    console.log(`[DEBUG] Token obtained for: ${credentials.email} (worker ${workerIndex})`);
+  });
 
   const endpoints = [
     '/v1/md/billing-note/customer-export-all/ALL',
@@ -24,68 +39,52 @@ test.describe('TC-06: Standard Routes Rate Limit - User D (4-6)', () => {
   for (const endpoint of endpoints) {
     test(`TC-06: ${endpoint}`, async () => {
       console.log(`\n========== Testing: ${endpoint} ==========`);
-      console.log('=== Waiting 65 seconds for rate limit window to reset ===');
       await new Promise(resolve => setTimeout(resolve, 65000));
 
-      // Step 1: Verify endpoint works before rate limit
-      const initialResult = await loginAndBurstTest({
+      const initialResult = await burstTest({
         baseURL,
-        loginEndpoint: '/v1/md/auth/customer/sign-in',
-        targetEndpoint: endpoint,
+        endpoint,
         method: 'GET',
-        credentials,
+        token,
         burstSize: 5,
       });
 
-      const canHitBefore = initialResult.burstResults.some(r => r.statusCode === 200);
+      const canHitBefore = initialResult.some(r => r.statusCode === 200);
       console.log(`Can hit before: ${canHitBefore ? '✅' : '❌'}`);
 
-      // Step 2: Burst to trigger rate limit
-      const burstResult = await loginAndBurstTest({
+      const burstResult = await burstTest({
         baseURL,
-        loginEndpoint: '/v1/md/auth/customer/sign-in',
-        targetEndpoint: endpoint,
+        endpoint,
         method: 'GET',
-        credentials,
+        token,
         burstSize: 100,
       });
 
-      const analysis = analyzeRateLimitResults(burstResult.burstResults);
-      console.log(`Rate limited: ${analysis.rateLimited ? '✅ YES' : '❌ NO'}`);
-      console.log(`Rate limited at: ${analysis.rateLimitedAt || 'N/A'}`);
+      const analysis = analyzeRateLimitResults(burstResult);
+      console.log(`Rate limited: ${analysis.rateLimited ? '✅' : '❌'}, at: ${analysis.rateLimitedAt || 'N/A'}`);
 
-      // Step 3: After rate limit, can hit SAME endpoint?
-      const sameEndpointResult = await loginAndBurstTest({
+      const sameResult = await burstTest({
         baseURL,
-        loginEndpoint: '/v1/md/auth/customer/sign-in',
-        targetEndpoint: endpoint,
+        endpoint,
         method: 'GET',
-        credentials,
+        token,
         burstSize: 3,
       });
 
-      const canHitAfter = sameEndpointResult.burstResults.some(r => r.statusCode === 200);
+      const canHitAfter = sameResult.some(r => r.statusCode === 200);
       console.log(`Same blocked: ${!canHitAfter ? '✅' : '❌'}`);
 
-      // Step 3b: After rate limit, can hit OTHER endpoint?
       const otherEndpoint = '/v1/md/customer/sub-accounts?page=1&limit=25';
-      const otherEndpointResult = await loginAndBurstTest({
+      const otherResult = await burstTest({
         baseURL,
-        loginEndpoint: '/v1/md/auth/customer/sign-in',
-        targetEndpoint: otherEndpoint,
+        endpoint: otherEndpoint,
         method: 'GET',
-        credentials,
+        token,
         burstSize: 3,
       });
 
-      const otherStatusCodes = otherEndpointResult.burstResults.map(r => r.statusCode);
-      const otherHas429 = otherStatusCodes.some(s => s === 429);
-      console.log(`Other endpoint (${otherEndpoint}): ${otherHas429 ? '✅ 429 returned (shared counter)' : '❌ All 200'}`);
-
-      console.log(`1. Works before: ${canHitBefore ? '✅' : '❌'}`);
-      console.log(`2. Has rate limit: ${analysis.rateLimited ? '✅' : '❌'}`);
-      console.log(`3. Same blocked: ${!canHitAfter ? '✅' : '❌'}`);
-      console.log(`4. Other blocked (shared): ${otherHas429 ? '✅' : '❌'}`);
+      const otherHas429 = otherResult.some(r => r.statusCode === 429);
+      console.log(`Other blocked: ${otherHas429 ? '✅' : '❌'}`);
 
       expect(canHitBefore).toBe(true);
       expect(analysis.rateLimited).toBe(true);

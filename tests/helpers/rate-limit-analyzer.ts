@@ -1,6 +1,11 @@
-import { APIResponse, APIRequestContext } from '@playwright/test';
-import * as fs from 'fs';
-import * as path from 'path';
+/**
+ * Rate Limit Analyzer
+ * Test helper for burst testing and rate limit analysis
+ */
+
+import { request, APIResponse, APIRequestContext } from '@playwright/test';
+import { getApiBaseUrl, getWebUrl } from '../../config/env';
+import { authClient } from '../../api/auth.client';
 
 export interface RateLimitConfig {
   endpoint: string;
@@ -21,11 +26,41 @@ export interface RateLimitResult {
   };
   isRateLimited: boolean;
   requestCount: number;
+  rateLimitCode?: number;
+  rateLimitMessage?: string;
 }
 
 export interface AuthCredentials {
   email: string;
   password: string;
+}
+
+export interface BurstTestConfig {
+  baseURL?: string;
+  endpoint: string;
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  token?: string;
+  burstSize?: number;
+  body?: object;
+  requestContext?: APIRequestContext;
+  uploadFile?: { path: string; fieldName: string; mimeType?: string };
+}
+
+export interface LoginAndBurstConfig {
+  baseURL?: string;
+  loginEndpoint: string;
+  targetEndpoint: string;
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  credentials: AuthCredentials;
+  burstSize?: number;
+  body?: object;
+  uploadFile?: { path: string; fieldName: string; mimeType?: string };
+}
+
+export interface LoginAndBurstResult {
+  loginResult: any;
+  burstResults: RateLimitResult[];
+  token: string;
 }
 
 function extractRateLimitInfo(response: APIResponse) {
@@ -49,46 +84,38 @@ function methodToFunction(ctx: APIRequestContext, method: string) {
   }
 }
 
-async function createRequestContext(): Promise<APIRequestContext> {
-  const { request } = await import('@playwright/test');
-  return await request.newContext();
+function getDefaultHeaders(token?: string): Record<string, string> {
+  const baseHeaders: Record<string, string> = {
+    'Origin': getWebUrl(),
+    'Referer': getWebUrl() + '/',
+    'Accept': 'application/json',
+  };
+  if (token) baseHeaders['Authorization'] = `Bearer ${token}`;
+  return baseHeaders;
 }
 
-export async function burstTest(config: {
-  baseURL: string;
-  endpoint: string;
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  token?: string;
-  burstSize?: number;
-  body?: object;
-  requestContext?: APIRequestContext;
-  uploadFile?: { path: string; fieldName: string; mimeType?: string };
-}): Promise<RateLimitResult[]> {
-  const { baseURL, endpoint, method, token, burstSize = 100, body, requestContext, uploadFile } = config;
+export async function burstTest(config: BurstTestConfig): Promise<RateLimitResult[]> {
+  const baseURL = config.baseURL || getApiBaseUrl();
+  const { endpoint, method, token, burstSize = 100, body, requestContext, uploadFile } = config;
   const results: RateLimitResult[] = [];
 
-  // Create context if not provided
-  const ctx = requestContext || await createRequestContext();
-
+  const ctx = requestContext || await request.newContext();
   const doRequest = methodToFunction(ctx, method);
 
   for (let i = 1; i <= burstSize; i++) {
-    const headers: Record<string, string> = {
-      'Origin': 'https://sit.askmebill.com',
-      'Referer': 'https://sit.askmebill.com/',
-      'Accept': 'application/json',
-    };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = getDefaultHeaders(token);
 
     let statusCode = 0;
     let responseBody: any = null;
-    let errorMsg: string | undefined;
+    let rateLimitCode: number | undefined;
+    let rateLimitMessage: string | undefined;
 
     try {
-      let response;
-      // If uploadFile is provided, use multipart form data
+      let response: APIResponse;
+
       if (uploadFile) {
         const { path, fieldName, mimeType } = uploadFile;
+        const fs = require('fs');
         response = await doRequest(`${baseURL}${endpoint}`, {
           multipart: {
             [fieldName]: {
@@ -109,8 +136,6 @@ export async function burstTest(config: {
 
       statusCode = response.status();
       const rlHeaders = extractRateLimitInfo(response);
-      let rateLimitCode: number | undefined;
-      let rateLimitMessage: string | undefined;
 
       if (response.status() === 429) {
         try {
@@ -131,98 +156,60 @@ export async function burstTest(config: {
       };
 
       console.log(`[burstTest] Request ${i}: status=${statusCode}, isRateLimited=${result.isRateLimited}`);
-
       results.push(result);
 
       if (response.status() === 429) {
         break;
       }
     } catch (e: any) {
-      errorMsg = e.message;
-      console.log(`[burstTest] Request ${i}: ERROR - ${errorMsg}`);
-
-      const result: RateLimitResult = {
+      console.log(`[burstTest] Request ${i}: ERROR - ${e.message}`);
+      results.push({
         endpoint,
         statusCode: 0,
         rateLimit: { limit: null, remaining: null, reset: null, retryAfter: null },
         isRateLimited: false,
         requestCount: i,
-      };
-
-      results.push(result);
+      });
     }
   }
 
   return results;
 }
 
-export async function loginAndBurstTest(config: {
-  baseURL?: string;
-  loginEndpoint: string;
-  targetEndpoint: string;
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  credentials: AuthCredentials;
-  burstSize?: number;
-  body?: object;
-  uploadFile?: { path: string; fieldName: string; mimeType?: string };
-}): Promise<{ loginResult: any; burstResults: RateLimitResult[]; token: string }> {
-  const baseURL = config.baseURL || process.env.API_BASE_URL || 'https://api-sit.askmebill.com';
-
-  // Create a new context for login
-  const { request } = await import('@playwright/test');
+export async function loginAndBurstTest(config: LoginAndBurstConfig): Promise<LoginAndBurstResult> {
+  const baseURL = config.baseURL || getApiBaseUrl();
   const ctx = await request.newContext();
 
-  // Step 1: Login
-  const loginResponse = await ctx.post(`${baseURL}${config.loginEndpoint}`, {
-    data: config.credentials,
-    headers: {
-      'Content-Type': 'application/json',
-      'Origin': 'https://sit.askmebill.com',
-      'Referer': 'https://sit.askmebill.com/',
-      'Accept': 'application/json',
-    },
-  });
-  const loginBody = await loginResponse.json();
-  const loginData = Array.isArray(loginBody) ? loginBody[0] : loginBody;
+  // Step 1: Login using auth client
+  console.log(`[DEBUG] Login attempt for: ${config.credentials.email}`);
+  const loginData = await authClient.signIn(config.credentials);
   let token = loginData?.data?.token || null;
 
-  // Debug: log login response
-  console.log(`[DEBUG] Login response status: ${loginResponse.status()}`);
-  console.log(`[DEBUG] Login response body:`, JSON.stringify(loginBody, null, 2));
+  console.log(`[DEBUG] Login response status: ${loginData?.code || 'N/A'}`);
+  console.log(`[DEBUG] Token obtained: ${token ? 'Yes' : 'No'}`);
 
-  // Step 2: Call TOTP verify to get token with is_accessapi: true
+  // Step 2: Get token with is_accessapi: true via TOTP
   if (token) {
     console.log(`[DEBUG] Calling TOTP verify to get is_accessapi: true...`);
-    const totpResponse = await ctx.post(`${baseURL}/v1/md/auth/verify/totp`, {
-      data: { totp_key: '954900', generate_token: true },
-      headers: {
-        'Content-Type': 'application/json',
-        'Origin': 'https://sit.askmebill.com',
-        'Referer': 'https://sit.askmebill.com/',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-    const totpBody = await totpResponse.json();
-    console.log(`[DEBUG] TOTP response status: ${totpResponse.status()}`);
-    console.log(`[DEBUG] TOTP response body:`, JSON.stringify(totpBody, null, 2));
+    const totpKey = process.env.AUTH_2FA || '954900';
+    const totpResp = await authClient.verifyTotp(token, totpKey, true);
+    console.log(`[DEBUG] TOTP response status: ${totpResp?.code || 'N/A'}`);
 
-    // Get new token from TOTP response
-    if (totpBody?.data?.token) {
-      token = totpBody.data.token;
+    if (totpResp?.data?.token) {
+      token = totpResp.data.token;
       console.log(`[DEBUG] Got new token with is_accessapi: true`);
     }
   }
 
-  // Step 3: Burst test on target endpoint
+  // Step 3: Burst test
   const burstResults = await burstTest({
     baseURL,
     endpoint: config.targetEndpoint,
     method: config.method,
     token,
     burstSize: config.burstSize,
-    uploadFile: config.uploadFile,
     body: config.body,
+    uploadFile: config.uploadFile,
     requestContext: ctx,
   });
 
@@ -242,7 +229,6 @@ export function analyzeRateLimitResults(results: RateLimitResult[]): {
   rateLimitMessage?: string;
 } {
   const rateLimitedResults = results.filter(r => r.isRateLimited);
-  const remainingSequence = results.map(r => r.rateLimit.remaining);
 
   return {
     totalRequests: results.length,
@@ -250,23 +236,16 @@ export function analyzeRateLimitResults(results: RateLimitResult[]): {
     rateLimitedAt: rateLimitedResults[0]?.requestCount,
     retryAfterValue: rateLimitedResults[0]?.rateLimit.retryAfter ?? undefined,
     limitHeader: results[0]?.rateLimit.limit ?? undefined,
-    remainingSequence,
+    remainingSequence: results.map(r => r.rateLimit.remaining),
     rateLimitCode: rateLimitedResults[0]?.rateLimitCode,
     rateLimitMessage: rateLimitedResults[0]?.rateLimitMessage,
   };
 }
 
-export interface RateLimitResult {
-  endpoint: string;
-  statusCode: number;
-  rateLimit: {
-    limit: number | null;
-    remaining: number | null;
-    reset: number | null;
-    retryAfter: number | null;
-  };
-  isRateLimited: boolean;
-  requestCount: number;
-  rateLimitCode?: number;
-  rateLimitMessage?: string;
+/**
+ * Wait for rate limit window to reset (65 seconds)
+ */
+export async function waitForRateLimitReset(): Promise<void> {
+  console.log('=== Waiting 65 seconds for rate limit window to reset ===');
+  await new Promise(resolve => setTimeout(resolve, 65000));
 }
