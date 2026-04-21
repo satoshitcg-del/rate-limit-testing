@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { burstTest, analyzeRateLimitResults } from '../helpers/rate-limit-analyzer';
+import { burstTest, analyzeRateLimitResults, waitForRateLimitReset } from '../helpers/rate-limit-analyzer';
 import { getApiBaseUrl } from '../../config/env';
 import { authClient } from '../../api/auth.client';
 
@@ -10,25 +10,16 @@ test.describe('TC-06: Standard Routes Rate Limit - User H (16-18)', () => {
   const credentials = {
     email: process.env.AUTH_EMAIL_H || 'eiji11',
     password: process.env.AUTH_PASSWORD_H || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
   };
 
-  let token: string | undefined;
-
-  test.beforeAll(async () => {
-    const workerIndex = test.info()?.workerIndex ?? 0;
-    await new Promise(r => setTimeout(r, workerIndex * 15000));
-
-    const loginData = await authClient.signIn(credentials);
-    token = loginData?.data?.token;
-    if (token) {
-      const totpKey = process.env.AUTH_2FA || '954900';
-      const totpResp = await authClient.verifyTotp(token, totpKey, true);
-      if (totpResp?.data?.token) {
-        token = totpResp.data.token;
-      }
-    }
-    console.log(`[DEBUG] Token obtained for: ${credentials.email} (worker ${workerIndex})`);
-  });
+  async function getFreshToken(): Promise<string | undefined> {
+    const signInData = await authClient.signIn({ email: credentials.email, password: credentials.password });
+    const token = signInData?.data?.token;
+    if (!token) return undefined;
+    const totpResp = await authClient.verifyTotp(token, credentials.totp, true);
+    return totpResp?.data?.token || token;
+  }
 
   const endpoints = [
     '/v2/md/billing-note/customer?status=REFUND&page=1&limit=25',
@@ -39,7 +30,12 @@ test.describe('TC-06: Standard Routes Rate Limit - User H (16-18)', () => {
   for (const endpoint of endpoints) {
     test(`TC-06: ${endpoint}`, async () => {
       console.log(`\n========== Testing: ${endpoint} ==========`);
-      await new Promise(resolve => setTimeout(resolve, 65000));
+
+      const token = await getFreshToken();
+      if (!token) throw new Error('Failed to obtain token');
+      console.log(`[DEBUG] Token obtained: ${!!token}`);
+
+      await waitForRateLimitReset();
 
       const initialResult = await burstTest({
         baseURL,
@@ -51,6 +47,8 @@ test.describe('TC-06: Standard Routes Rate Limit - User H (16-18)', () => {
 
       const canHitBefore = initialResult.some(r => r.statusCode === 200);
       console.log(`Can hit before: ${canHitBefore ? '✅' : '❌'}`);
+
+      await waitForRateLimitReset();
 
       const burstResult = await burstTest({
         baseURL,

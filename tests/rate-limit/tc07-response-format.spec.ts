@@ -13,31 +13,25 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
   const baseURL = getApiBaseUrl();
 
   const credentials = {
-    email: process.env.AUTH_EMAIL_L || 'eiji12',
-    password: process.env.AUTH_PASSWORD_L || '0897421942@Earth',
+    email: process.env.AUTH_EMAIL || 'eiji',
+    password: process.env.AUTH_PASSWORD || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
   };
 
-  let token: string;
-
-  test.beforeAll(async () => {
-    const loginData = await authClient.signIn(credentials);
-    token = loginData?.data?.token;
-    if (token) {
-      const totpKey = process.env.AUTH_2FA || '954900';
-      const totpResp = await authClient.verifyTotp(token, totpKey, true);
-      if (totpResp?.data?.token) {
-        token = totpResp.data.token;
-      }
-    }
-    console.log(`[DEBUG] Token obtained for: ${credentials.email}`);
-  });
+  async function getFreshToken(): Promise<string | undefined> {
+    const signInData = await authClient.signIn({ email: credentials.email, password: credentials.password });
+    const token = signInData?.data?.token;
+    if (!token) return undefined;
+    const totpResp = await authClient.verifyTotp(token, credentials.totp, true);
+    return totpResp?.data?.token || token;
+  }
 
   test('TC-07-01: ควรได้ 429 response format ที่ถูกต้อง', async () => {
     const results = await burstTest({
       baseURL,
       endpoint: '/v1/md/auth/customer/sign-in',
       method: 'POST',
-      body: credentials,
+      body: { email: credentials.email, password: credentials.password },
       burstSize: 10,
     });
 
@@ -57,7 +51,7 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
       baseURL,
       endpoint: '/v1/md/auth/customer/sign-in',
       method: 'POST',
-      body: credentials,
+      body: { email: credentials.email, password: credentials.password },
       burstSize: 10,
     });
 
@@ -67,6 +61,7 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
   });
 
   test('TC-07-03: ควรมี rate limit headers ใน response', async () => {
+    const token = await getFreshToken();
     if (!token) {
       console.log('⚠️ Could not obtain token - skipping');
       return;
@@ -90,6 +85,7 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
   });
 
   test('TC-07-04: Standard tier ควรได้ 429 format เหมือน strict tier', async () => {
+    const token = await getFreshToken();
     if (!token) {
       console.log('⚠️ Could not obtain token - skipping');
       return;
