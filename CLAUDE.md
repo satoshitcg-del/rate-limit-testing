@@ -136,16 +136,6 @@ When rate limited (HTTP 429):
 - When rate limited, all endpoints return HTTP 429 with code 10027
 - Window resets after 61 seconds
 
-## Known Issues (BUG - Report to Dev Team)
-
-Endpoints WITHOUT rate limit protection (Dev claims fixed but NOT working):
-1. POST /v1/md/auth/customer/verify - Should have strict tier
-2. POST /v1/md/auth/verify/totp - Should have strict tier
-3. GET /v1/md/user/profile - Should have standard tier
-4. GET /v1/md/billing-note/customer-export/{id} - Should have standard tier
-5. GET /v1/md/billing-note/preview/{id} - Should have standard tier
-6. POST /v1/md/system-file/invoice/slip - Should have standard tier
-
 ## Rate Limit Reset
 
 `POST /v1/system/clear-ratelimit` on BO API to reset rate limit counter:
