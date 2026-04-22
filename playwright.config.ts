@@ -10,6 +10,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   reporter: [['html'], ['list']],
+  globalSetup: './global-setup.ts',
   use: {
     baseURL: process.env.API_BASE_URL || 'https://api-sit.askmebill.com',
     trace: 'on-first-retry',
@@ -36,7 +37,7 @@ export default defineConfig({
         '**/tc08-admin-exempt.spec.ts',
       ],
       use: { ...devices['Desktop Chrome'] },
-      workers: 12,
+      workers: 12,  // 12 workers = 12 users พอดี (C-L)
     },
   ],
 });

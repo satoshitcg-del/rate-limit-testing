@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
     - uses: actions/checkout@v4
@@ -19,6 +20,38 @@ jobs:
 
     - name: Install dependencies
       run: npm ci
+
+    - name: Create .env file
+      run: |
+        cat > .env << EOF
+        API_BASE_URL=${{ secrets.API_BASE_URL }}
+        BO_API_BASE_URL=${{ secrets.BO_API_BASE_URL }}
+        AUTH_EMAIL=${{ secrets.AUTH_EMAIL }}
+        AUTH_PASSWORD=${{ secrets.AUTH_PASSWORD }}
+        AUTH_2FA=${{ secrets.AUTH_2FA }}
+        AUTH_EMAIL_B=${{ secrets.AUTH_EMAIL_B }}
+        AUTH_PASSWORD_B=${{ secrets.AUTH_PASSWORD_B }}
+        AUTH_EMAIL_C=${{ secrets.AUTH_EMAIL_C }}
+        AUTH_PASSWORD_C=${{ secrets.AUTH_PASSWORD_C }}
+        AUTH_EMAIL_D=${{ secrets.AUTH_EMAIL_D }}
+        AUTH_PASSWORD_D=${{ secrets.AUTH_PASSWORD_D }}
+        AUTH_EMAIL_E=${{ secrets.AUTH_EMAIL_E }}
+        AUTH_PASSWORD_E=${{ secrets.AUTH_PASSWORD_E }}
+        AUTH_EMAIL_F=${{ secrets.AUTH_EMAIL_F }}
+        AUTH_PASSWORD_F=${{ secrets.AUTH_PASSWORD_F }}
+        AUTH_EMAIL_G=${{ secrets.AUTH_EMAIL_G }}
+        AUTH_PASSWORD_G=${{ secrets.AUTH_PASSWORD_G }}
+        AUTH_EMAIL_H=${{ secrets.AUTH_EMAIL_H }}
+        AUTH_PASSWORD_H=${{ secrets.AUTH_PASSWORD_H }}
+        AUTH_EMAIL_I=${{ secrets.AUTH_EMAIL_I }}
+        AUTH_PASSWORD_I=${{ secrets.AUTH_PASSWORD_I }}
+        AUTH_EMAIL_J=${{ secrets.AUTH_EMAIL_J }}
+        AUTH_PASSWORD_J=${{ secrets.AUTH_PASSWORD_J }}
+        AUTH_EMAIL_K=${{ secrets.AUTH_EMAIL_K }}
+        AUTH_PASSWORD_K=${{ secrets.AUTH_PASSWORD_K }}
+        AUTH_EMAIL_L=${{ secrets.AUTH_EMAIL_L }}
+        AUTH_PASSWORD_L=${{ secrets.AUTH_PASSWORD_L }}
+        EOF
 
     - name: Run Playwright tests
       run: npx playwright test --reporter=html

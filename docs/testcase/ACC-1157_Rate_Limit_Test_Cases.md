@@ -3,8 +3,8 @@
 **Task:** https://app.clickup.com/t/86ex7aucy  
 **Story:** ACC-1138  
 **Tester:** satoshi tcg  
-**วันที่:** รอ update  
-**สถานะ:** รอดำเนินการ
+**วันที่:** 2026-04-23  
+**สถานะ:** ทดสอบแล้ว ✅
 
 ---
 
@@ -140,7 +140,7 @@ done
 
 **หมายเหตุ:** ข้ามถ้าไม่มี 2 IP สำหรับทดสอบ
 
-**Status:** ⬜ รอทดสอบ / ⬜ ข้าม
+**Status:** ⬜ ข้าม (IP isolation covered by existing tests)
 
 ---
 
@@ -260,7 +260,7 @@ Content-Type: application/json
 
 **ถ้า fail:** ทั้ง 6 ครั้งได้ 200 → แปลว่าใช้ in-memory → **bug**
 
-**Status:** ⬜ รอทดสอบ
+**Status:** ⬜ ข้าม (ต้องมี 2+ pods ถึงจะทดสอบได้)
 
 ---
 
@@ -268,17 +268,17 @@ Content-Type: application/json
 
 | TC | รายการ | ผล | หมายเหตุ |
 |----|--------|------|-------------|
-| TC-01 | Sign-in เกิน 5 ครั้ง | ⬜ | |
-| TC-02 | Window reset | ⬜ | |
-| TC-03 | IP isolation | ⬜ | หรือข้าม |
-| TC-04 | Verify เกิน 10 ครั้ง | ⬜ | |
-| TC-05 | User isolation | ⬜ | |
-| TC-06 | Standard เกิน 60 ครั้ง | ⬜ | ต้องถาม dev หา endpoint |
-| TC-07 | Response format | ⬜ | |
-| TC-08 | **ADMIN exempt** | ⬜ | ⚠️ สำคัญ |
-| TC-09 | Multi-pod state | ⬜ | |
+| TC-01 | Sign-in เกิน 5 ครั้ง | ✅ | |
+| TC-02 | Window reset | ✅ | |
+| TC-03 | IP isolation | ⬜ | ข้าม - covered by other tests |
+| TC-04 | Verify เกิน 10 ครั้ง | ✅ | |
+| TC-05 | User isolation | ✅ | |
+| TC-06 | Standard เกิน 60 ครั้ง | ✅ | |
+| TC-07 | Response format | ✅ | |
+| TC-08 | **ADMIN exempt** | ✅ | ⚠️ สำคัญ |
+| TC-09 | Multi-pod state | ⬜ | ข้าม - ต้องมี 2+ pods |
 
-**สรุป:** ผ่าน ___/9 | ไม่ผ่าน ___/9 | ข้าม ___/9
+**สรุป:** ผ่าน 7/9 | ไม่ผ่าน 0/9 | ข้าม 2/9
 
 ---
 

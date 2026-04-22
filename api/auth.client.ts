@@ -5,6 +5,19 @@
 
 import { getApiBaseUrl, getBoApiBaseUrl } from '../config/env';
 
+// API Endpoints (centralized)
+export const API_ENDPOINTS = {
+  // Auth endpoints
+  SIGN_IN: '/v1/md/auth/customer/sign-in',
+  VERIFY: '/v1/md/auth/customer/verify',
+  TOTP_VERIFY: '/v1/md/auth/verify/totp',
+  BO_SIGN_IN: '/v1/auth/sign-in',
+  BO_VERIFY: '/v1/auth/verify',
+  CLEAR_RATELIMIT: '/v1/system/clear-ratelimit',
+} as const;
+
+export type Endpoint = typeof API_ENDPOINTS[keyof typeof API_ENDPOINTS];
+
 export interface SignInRequest {
   email: string;
   password: string;
@@ -33,7 +46,7 @@ export class AuthClient {
   }
 
   async signIn(credentials: SignInRequest): Promise<SignInResponse> {
-    const response = await fetch(`${this.baseURL}/v1/md/auth/customer/sign-in`, {
+    const response = await fetch(`${this.baseURL}${API_ENDPOINTS.SIGN_IN}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -46,7 +59,7 @@ export class AuthClient {
   }
 
   async verifyTotp(token: string, totpKey: string, generateToken = true): Promise<any> {
-    const response = await fetch(`${this.baseURL}/v1/md/auth/verify/totp`, {
+    const response = await fetch(`${this.baseURL}${API_ENDPOINTS.TOTP_VERIFY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,7 +73,7 @@ export class AuthClient {
   }
 
   async boSignIn(email: string, password: string): Promise<any> {
-    const response = await fetch(`${getBoApiBaseUrl()}/v1/auth/verify`, {
+    const response = await fetch(`${getBoApiBaseUrl()}${API_ENDPOINTS.BO_VERIFY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,7 +86,7 @@ export class AuthClient {
   }
 
   async clearRateLimit(username?: string, ip?: string): Promise<any> {
-    const response = await fetch(`${getBoApiBaseUrl()}/v1/system/clear-ratelimit`, {
+    const response = await fetch(`${getBoApiBaseUrl()}${API_ENDPOINTS.CLEAR_RATELIMIT}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

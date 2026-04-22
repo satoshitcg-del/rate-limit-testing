@@ -3,17 +3,14 @@
  * Test helper for burst testing and rate limit analysis
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
 import { request, APIResponse, APIRequestContext } from '@playwright/test';
 import { getApiBaseUrl, getWebUrl } from '../../config/env';
 import { authClient } from '../../api/auth.client';
 
-export interface RateLimitConfig {
-  endpoint: string;
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  burstSize: number;
-  expectedLimit?: number;
-  expectedWindow?: number;
-}
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export interface RateLimitResult {
   endpoint: string;
@@ -30,11 +27,6 @@ export interface RateLimitResult {
   rateLimitMessage?: string;
 }
 
-export interface AuthCredentials {
-  email: string;
-  password: string;
-}
-
 export interface BurstTestConfig {
   baseURL?: string;
   endpoint: string;
@@ -44,23 +36,6 @@ export interface BurstTestConfig {
   body?: object;
   requestContext?: APIRequestContext;
   uploadFile?: { path: string; fieldName: string; mimeType?: string };
-}
-
-export interface LoginAndBurstConfig {
-  baseURL?: string;
-  loginEndpoint: string;
-  targetEndpoint: string;
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  credentials: AuthCredentials;
-  burstSize?: number;
-  body?: object;
-  uploadFile?: { path: string; fieldName: string; mimeType?: string };
-}
-
-export interface LoginAndBurstResult {
-  loginResult: any;
-  burstResults: RateLimitResult[];
-  token: string;
 }
 
 function extractRateLimitInfo(response: APIResponse) {
@@ -176,48 +151,6 @@ export async function burstTest(config: BurstTestConfig): Promise<RateLimitResul
   return results;
 }
 
-export async function loginAndBurstTest(config: LoginAndBurstConfig): Promise<LoginAndBurstResult> {
-  const baseURL = config.baseURL || getApiBaseUrl();
-  const ctx = await request.newContext();
-
-  // Step 1: Login using auth client
-  console.log(`[DEBUG] Login attempt for: ${config.credentials.email}`);
-  const loginData = await authClient.signIn(config.credentials);
-  let token = loginData?.data?.token || null;
-
-  console.log(`[DEBUG] Login response status: ${loginData?.code || 'N/A'}`);
-  console.log(`[DEBUG] Token obtained: ${token ? 'Yes' : 'No'}`);
-
-  // Step 2: Get token with is_accessapi: true via TOTP
-  if (token) {
-    console.log(`[DEBUG] Calling TOTP verify to get is_accessapi: true...`);
-    const totpKey = process.env.AUTH_2FA || '954900';
-    const totpResp = await authClient.verifyTotp(token, totpKey, true);
-    console.log(`[DEBUG] TOTP response status: ${totpResp?.code || 'N/A'}`);
-
-    if (totpResp?.data?.token) {
-      token = totpResp.data.token;
-      console.log(`[DEBUG] Got new token with is_accessapi: true`);
-    }
-  }
-
-  // Step 3: Burst test
-  const burstResults = await burstTest({
-    baseURL,
-    endpoint: config.targetEndpoint,
-    method: config.method,
-    token,
-    burstSize: config.burstSize,
-    body: config.body,
-    uploadFile: config.uploadFile,
-    requestContext: ctx,
-  });
-
-  await ctx.dispose();
-
-  return { loginResult: loginData, burstResults, token };
-}
-
 export function analyzeRateLimitResults(results: RateLimitResult[]): {
   totalRequests: number;
   rateLimited: boolean;
@@ -242,10 +175,244 @@ export function analyzeRateLimitResults(results: RateLimitResult[]): {
   };
 }
 
+// Re-export waitForRateLimitReset from common utils
+export { waitForRateLimitReset } from '../../common/utils';
+
 /**
- * Wait for rate limit window to reset (65 seconds)
+ * Shared test credentials for TC-06
  */
-export async function waitForRateLimitReset(): Promise<void> {
-  console.log('=== Waiting 65 seconds for rate limit window to reset ===');
-  await new Promise(resolve => setTimeout(resolve, 65000));
+export const TC06_USERS = [
+  {
+    name: 'User C',
+    email: process.env.AUTH_EMAIL_C || 'eiji2',
+    password: process.env.AUTH_PASSWORD_C || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v1/md/user/profile',
+      '/v1/md/customer/sub-accounts?page=1&limit=25',
+      '/v1/md/billing-note/customer-export-all/PENDING',
+    ],
+  },
+  {
+    name: 'User D',
+    email: process.env.AUTH_EMAIL_D || 'eiji3',
+    password: process.env.AUTH_PASSWORD_D || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v1/md/billing-note/customer-export-all/ALL',
+      '/v1/md/billing-note/customer-export-all/UNPAID',
+      '/v1/md/billing-note/customer?status=UNPAID',
+    ],
+  },
+  {
+    name: 'User E',
+    email: process.env.AUTH_EMAIL_E || 'eiji8',
+    password: process.env.AUTH_PASSWORD_E || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v2/md/billing-note/customer?status=PARTIALPAID,DELIVERED,VERIFYPAYMENT&page=1&limit=25',
+      '/v2/md/billing-note/customer?status=PAID&page=1&limit=25',
+      '/v2/md/billing-note/customer?status=EXCEED&page=1&limit=25',
+    ],
+  },
+  {
+    name: 'User F',
+    email: process.env.AUTH_EMAIL_F || 'eiji9',
+    password: process.env.AUTH_PASSWORD_F || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v1/md/billing-note/customer?status=PAID',
+      '/v1/md/billing-note/customer?status=PARTIALPAID,DELIVERED,VERIFYPAYMENT',
+      '/v1/md/billing-note/customer?status=EXCEED',
+    ],
+  },
+  {
+    name: 'User G',
+    email: process.env.AUTH_EMAIL_G || 'eiji10',
+    password: process.env.AUTH_PASSWORD_G || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v2/md/billing-note/customer?status=REFUND&page=1&limit=25',
+      '/v2/md/billing-note/customer?status=VOID&page=1&limit=25',
+      '/v1/md/billing-note/customer?status=REFUND',
+    ],
+  },
+  {
+    name: 'User H',
+    email: process.env.AUTH_EMAIL_H || 'eiji11',
+    password: process.env.AUTH_PASSWORD_H || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v1/md/billing-note/customer?status=EXCEED',
+      '/v1/md/billing-note/customer?status=VOID',
+      '/v2/md/billing-note/customer?status=&page=1&limit=25',
+    ],
+  },
+  {
+    name: 'User I',
+    email: process.env.AUTH_EMAIL_I || 'eiji8',
+    password: process.env.AUTH_PASSWORD_I || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v1/md/billing-note/customer-export-all/CANCELLED',
+      '/v1/md/billing-note/customer-export-all/EXCEED',
+      '/v1/md/billing-note/customer-export-all/PARTIALPAID',
+    ],
+  },
+  {
+    name: 'User J',
+    email: process.env.AUTH_EMAIL_J || 'eiji9',
+    password: process.env.AUTH_PASSWORD_J || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v2/md/billing-note/customer?status=PARTIALPAID&page=1&limit=25',
+      '/v2/md/billing-note/customer?status=DELIVERED&page=1&limit=25',
+      '/v2/md/billing-note/customer?status=VERIFYPAYMENT&page=1&limit=25',
+    ],
+  },
+  {
+    name: 'User K',
+    email: process.env.AUTH_EMAIL_K || 'eiji10',
+    password: process.env.AUTH_PASSWORD_K || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v1/md/customer/sub-accounts?page=2&limit=25',
+      '/v1/md/customer/sub-accounts?page=3&limit=25',
+      '/v1/md/customer/sub-accounts?page=1&limit=50',
+    ],
+  },
+  {
+    name: 'User L',
+    email: process.env.AUTH_EMAIL_L || 'eiji11',
+    password: process.env.AUTH_PASSWORD_L || '0897421942@Earth',
+    totp: process.env.AUTH_2FA || '954900',
+    endpoints: [
+      '/v1/md/user/profile',
+      '/v1/md/billing-note/customer?status=PAID&page=1&limit=10',
+      '/v1/md/billing-note/customer?status=PAID&page=2&limit=10',
+    ],
+  },
+];
+
+/**
+ * Token cache per worker (in-memory)
+ * Key: email, Value: { token, expiresAt }
+ */
+const tokenCache = new Map<string, { token: string; expiresAt: number }>();
+
+/**
+ * Load tokens from file cache (if exists)
+ */
+function loadFileCache(): Record<string, string> {
+  try {
+    const cacheFile = path.join(__dirname, 'token-cache.json');
+    if (fs.existsSync(cacheFile)) {
+      const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
+      if (Date.now() < cache.expiresAt - 60000) { // 1 min buffer
+        console.log('[DEBUG] Loaded tokens from file cache');
+        return cache.tokens || {};
+      }
+    }
+  } catch (e) {
+    // Ignore errors
+  }
+  return {};
+}
+
+/**
+ * Get fresh token with TOTP for a user (cached)
+ * Handles rate limit by clearing and retrying once
+ */
+export async function getFreshToken(email: string, password: string, totp: string): Promise<string | undefined> {
+  const now = Date.now();
+  const cached = tokenCache.get(email);
+
+  // Reuse token if still valid (> 5 min remaining)
+  if (cached && cached.expiresAt > now + 300000) {
+    console.log(`[DEBUG] Reusing in-memory cached token for: ${email}`);
+    return cached.token;
+  }
+
+  // Check file cache
+  const fileTokens = loadFileCache();
+  if (fileTokens[email]) {
+    console.log(`[DEBUG] Reusing file cached token for: ${email}`);
+    tokenCache.set(email, { token: fileTokens[email], expiresAt: now + 3600000 });
+    return fileTokens[email];
+  }
+
+  // Try to fetch new token (with rate limit retry)
+  await clearIpRateLimit(); // Clear IP rate limit before attempting
+  await new Promise(r => setTimeout(r, 2000)); // Brief pause after clear
+  const token = await fetchTokenWithRetry(email, password, totp);
+  if (!token) return undefined;
+
+  // Cache it
+  const expiresIn = 3600000; // 1 hour
+  tokenCache.set(email, { token, expiresAt: now + expiresIn });
+  console.log(`[DEBUG] Cached new token for: ${email}`);
+
+  return token;
+}
+
+/**
+ * Fetch token with rate limit handling
+ * IP-based rate limit (5 req/min) resets after 61 seconds
+ * User-based rate limit can be cleared via clearRateLimitForUser
+ */
+async function fetchTokenWithRetry(email: string, password: string, totp: string, attempt = 1): Promise<string | undefined> {
+  console.log(`[DEBUG] Fetching new token for: ${email} (attempt ${attempt})`);
+  const signInData = await authClient.signIn({ email, password });
+
+  // Check if rate limited (could be IP-based or user-based)
+  if (signInData?.code === 10027 || signInData?.code === 429) {
+    console.warn(`[DEBUG] Sign-in rate limited (${signInData?.code}), clearing IP rate limit...`);
+    await clearIpRateLimit();
+
+    // IP-based rate limit needs full 61s to reset - clear doesn't work for this tier
+    console.warn(`[DEBUG] Waiting 65s for IP rate limit window reset...`);
+    await new Promise(r => setTimeout(r, 65000));
+    return fetchTokenWithRetry(email, password, totp, attempt + 1);
+  }
+
+  // Check if credential error (don't retry)
+  if (!signInData?.data?.token) {
+    console.warn(`[DEBUG] Credential error for ${email}: ${signInData?.message} - skipping`);
+    return undefined; // Don't retry credential errors
+  }
+
+  const token = signInData.data.token;
+  const totpResp = await authClient.verifyTotp(token, totp, true);
+
+  // Check if TOTP also got rate limited
+  if (totpResp?.code === 10027 || totpResp?.code === 429) {
+    console.warn(`[DEBUG] TOTP rate limited (${totpResp?.code}), clearing and retrying...`);
+    await clearRateLimitForUser(email);
+    await new Promise(r => setTimeout(r, 2000));
+    return fetchTokenWithRetry(email, password, totp, attempt + 1);
+  }
+
+  // Check if TOTP credential error
+  if (!totpResp?.data?.token && totpResp?.code !== 10027) {
+    console.warn(`[DEBUG] TOTP error for ${email}: ${totpResp?.message} - skipping`);
+    return undefined;
+  }
+
+  return totpResp?.data?.token || token;
+}
+
+/**
+ * Clear rate limit for a user
+ */
+export async function clearRateLimitForUser(email: string): Promise<void> {
+  await authClient.clearRateLimit(email);
+  console.log(`[DEBUG] Cleared rate limit for: ${email}`);
+}
+
+/**
+ * Clear IP-based rate limit (call without username to clear caller's IP)
+ */
+export async function clearIpRateLimit(): Promise<void> {
+  await authClient.clearRateLimit();
+  console.log(`[DEBUG] Cleared IP rate limit`);
 }

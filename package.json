@@ -10,10 +10,19 @@
     "test:ui": "playwright test --ui",
     "report": "playwright show-report"
   },
-  "keywords": ["playwright", "api", "rate-limit", "testing"],
+  "keywords": [
+    "playwright",
+    "api",
+    "rate-limit",
+    "testing"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.59.1"
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
   }
 }

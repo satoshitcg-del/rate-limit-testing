@@ -3,6 +3,8 @@
  * Centralized assertions for rate limit testing
  */
 
+import { expect } from '@playwright/test';
+
 export interface RateLimitResponse {
   statusCode: number;
   body?: any;
@@ -138,6 +140,3 @@ export function validateUserIsolation(
     message: 'User isolation working correctly',
   };
 }
-
-// Make expect available for validators
-import { expect } from '@playwright/test';
