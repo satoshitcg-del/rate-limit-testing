@@ -10,7 +10,9 @@
       "WebFetch(domain:medium.com)",
       "WebFetch(domain:kyle-evans.medium.com)",
       "Bash(node --input-type=module)",
-      "Bash(xxd tests/rate-limit/tc06-standard-routes.spec.ts)"
+      "Bash(xxd tests/rate-limit/tc06-standard-routes.spec.ts)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
