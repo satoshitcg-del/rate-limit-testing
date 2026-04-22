@@ -28,3 +28,7 @@ Thumbs.db
 # Misc
 NOTES.md
 test.txt
+
+# Token cache (generated at runtime)
+tests/helpers/token-cache.json
+tests/helpers/token-cache.lock
