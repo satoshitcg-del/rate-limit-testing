@@ -27,9 +27,9 @@ test.describe('TC-06: Standard Routes Rate Limit - User F (10-12)', () => {
   }
 
   const endpoints = [
-    '/v1/md/billing-note/customer-export-all/PENDING',
-    '/v1/md/billing-note/customer?status=UNPAID',
-    '/v1/md/billing-note/customer?status=PAID&page=1&limit=25',
+    '/v1/md/billing-note/customer?status=PAID',
+    '/v1/md/billing-note/customer?status=PARTIALPAID,DELIVERED,VERIFYPAYMENT',
+    '/v1/md/billing-note/customer?status=EXCEED',
   ];
 
   for (const endpoint of endpoints) {

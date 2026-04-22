@@ -27,8 +27,8 @@ test.describe('TC-06: Standard Routes Rate Limit - User H (16-18)', () => {
   }
 
   const endpoints = [
-    '/v2/md/billing-note/customer?status=REFUND&page=1&limit=25',
-    '/v2/md/billing-note/customer?status=VOID&page=1&limit=25',
+    '/v1/md/billing-note/customer?status=EXCEED',
+    '/v1/md/billing-note/customer?status=VOID',
     '/v2/md/billing-note/customer?status=&page=1&limit=25',
   ];
 

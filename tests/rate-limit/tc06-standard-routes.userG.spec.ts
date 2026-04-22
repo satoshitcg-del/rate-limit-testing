@@ -27,9 +27,9 @@ test.describe('TC-06: Standard Routes Rate Limit - User G (13-15)', () => {
   }
 
   const endpoints = [
-    '/v2/md/billing-note/customer?status=PARTIALPAID,DELIVERED,VERIFYPAYMENT&page=1&limit=25',
-    '/v2/md/billing-note/customer?status=PAID&page=1&limit=25',
-    '/v2/md/billing-note/customer?status=EXCEED&page=1&limit=25',
+    '/v2/md/billing-note/customer?status=REFUND&page=1&limit=25',
+    '/v2/md/billing-note/customer?status=VOID&page=1&limit=25',
+    '/v1/md/billing-note/customer?status=REFUND',
   ];
 
   for (const endpoint of endpoints) {
