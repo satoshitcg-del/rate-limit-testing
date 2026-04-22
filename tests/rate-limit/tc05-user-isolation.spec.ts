@@ -21,7 +21,7 @@ const userA = {
 };
 
 const userB = {
-  email: process.env.AUTH_EMAIL_B || 'eiji2',
+  email: process.env.AUTH_EMAIL_B || 'admintest',
   password: process.env.AUTH_PASSWORD_B || '0897421942@Earth',
   totp: process.env.AUTH_2FA || '954900',
 };

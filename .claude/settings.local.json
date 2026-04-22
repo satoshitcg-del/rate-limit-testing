@@ -1,7 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(node -e ' *)",
+      "Bash(cat .env)",
+      "Bash(sed -i \"s/process.env.AUTH_EMAIL_E || 'eiji8'/process.env.AUTH_EMAIL_E || 'eiji4'/g\" tests/rate-limit/tc06-standard-routes.userE.spec.ts)",
+      "Bash(sed -i \"s/process.env.AUTH_EMAIL_F || 'eiji9'/process.env.AUTH_EMAIL_F || 'eiji5'/g\" tests/rate-limit/tc06-standard-routes.userF.spec.ts)",
+      "Bash(sed -i \"s/process.env.AUTH_EMAIL_G || 'eiji10'/process.env.AUTH_EMAIL_G || 'eiji6'/g\" tests/rate-limit/tc06-standard-routes.userG.spec.ts)",
+      "Bash(sed -i \"s/process.env.AUTH_EMAIL_H || 'eiji11'/process.env.AUTH_EMAIL_H || 'eiji7'/g\" tests/rate-limit/tc06-standard-routes.userH.spec.ts)",
+      "Bash(sed -i \"s/process.env.AUTH_EMAIL_E || 'eiji4'/process.env.AUTH_EMAIL_E || 'eiji8'/g\" tests/rate-limit/tc06-standard-routes.userE.spec.ts)",
+      "Bash(sed -i \"s/process.env.AUTH_EMAIL_F || 'eiji5'/process.env.AUTH_EMAIL_F || 'eiji9'/g\" tests/rate-limit/tc06-standard-routes.userF.spec.ts)",
+      "Bash(sed -i \"s/process.env.AUTH_EMAIL_G || 'eiji6'/process.env.AUTH_EMAIL_G || 'eiji10'/g\" tests/rate-limit/tc06-standard-routes.userG.spec.ts)",
+      "Bash(sed -i \"s/process.env.AUTH_EMAIL_H || 'eiji7'/process.env.AUTH_EMAIL_H || 'eiji11'/g\" tests/rate-limit/tc06-standard-routes.userH.spec.ts)"
     ]
   }
 }
