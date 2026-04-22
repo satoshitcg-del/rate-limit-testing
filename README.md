@@ -3,21 +3,23 @@
 ## Overview
 API Rate Limit Testing สำหรับ askmebill.com Customer API
 - **Customer API:** https://api-sit.askmebill.com
-Framework: Playwright (API Testing)
+- **Framework:** Playwright (API Testing)
 
 ## Test Case Coverage
 
 | TC | Test Case | Test File | Status |
 |----|-----------|-----------|--------|
-| TC-01 | Sign-in Rate Limit (5 req/min) | auth.spec.ts | ✅ |
-| TC-02 | Window Reset (61 sec) | window-reset.spec.ts | ✅ |
-| TC-03 | IP Isolation | (auto - IP-based) | ✅ |
-| TC-04 | Payment Verify (10 req/min) | customer.spec.ts | ✅ |
-| TC-05 | User Isolation | user-isolation.spec.ts | ✅ |
-| TC-06 | Standard Routes (60 req/min) | customer.spec.ts | ✅ |
-| TC-07 | Response Format (code=10027) | response-format.spec.ts, auth.spec.ts | ✅ |
-| TC-08 | ADMIN Exempt | admin-exempt.spec.ts | ✅ |
-| TC-09 | Multi-Pod State (MongoDB) | (same as TC-01) | ✅ |
+| TC-01 | Sign-in Rate Limit (5 req/min) | tc01-auth-signin.spec.ts | ✅ |
+| TC-02 | Window Reset (61 sec) | tc02-window-reset.spec.ts | ✅ |
+| TC-03 | IP Isolation | (covered by other tests) | ⬜ ข้าม |
+| TC-04 | Payment Verify (10 req/min) | tc04-payment-verify.spec.ts | ✅ |
+| TC-05 | User Isolation | tc05-user-isolation.spec.ts | ✅ |
+| TC-06 | Standard Routes (60 req/min) | tc06-standard-routes.spec.ts | ✅ |
+| TC-07 | Response Format (code=10027) | tc07-response-format.spec.ts | ✅ |
+| TC-08 | ADMIN Exempt | tc08-admin-exempt.spec.ts | ✅ |
+| TC-09 | Multi-Pod State (MongoDB) | (ต้องมี 2+ pods) | ⬜ ข้าม |
+
+**สรุป:** ผ่าน 7/9 | ข้าม 2/9
 
 ## Project Structure
 
@@ -27,19 +29,27 @@ Framework: Playwright (API Testing)
 ├── package.json                 # npm scripts
 ├── README.md                    # This file
 ├── .gitignore                   # Git ignore
+├── .env                         # Environment variables (git ignored)
 ├── .env.example                 # Environment template
-└── tests/
-    ├── helpers/
-    │   ├── api-client.ts        # API client wrapper
-    │   └── rate-limit-analyzer.ts # Rate limit analysis tools
-    └── rate-limit/
-        ├── auth.spec.ts         # TC-01, TC-07, Auth tests (logout)
-        ├── customer.spec.ts     # TC-04, TC-06 Customer tests
-        ├── window-reset.spec.ts # TC-02 Window Reset tests
-        ├── response-format.spec.ts # TC-07 Response Format tests
-        ├── user-isolation.spec.ts # TC-05 User Isolation tests
-        ├── admin-exempt.spec.ts # TC-08 ADMIN Exempt tests
-        └── system.spec.ts       # TC-06 System endpoints tests
+├── api/                         # API Client classes
+│   ├── auth.client.ts           # Authentication endpoints
+│   └── billing-note.client.ts   # Billing note endpoints
+├── config/
+│   └── env.ts                   # Environment settings
+├── validators/
+│   └── rate-limit.validators.ts # Centralized assertions
+├── tests/
+│   ├── helpers/
+│   │   └── rate-limit-analyzer.ts # Token cache & burst testing
+│   └── rate-limit/
+│       ├── tc01-auth-signin.spec.ts      # TC-01
+│       ├── tc02-window-reset.spec.ts     # TC-02
+│       ├── tc04-payment-verify.spec.ts  # TC-04
+│       ├── tc05-user-isolation.spec.ts   # TC-05
+│       ├── tc06-standard-routes.spec.ts  # TC-06 (consolidated)
+│       ├── tc07-response-format.spec.ts  # TC-07
+│       └── tc08-admin-exempt.spec.ts     # TC-08
+└── global-setup.ts             # Token cache pre-fetch
 ```
 
 ## Rate Limit Tiers (from ACC-1138)
@@ -64,23 +74,25 @@ cp .env.example .env
 npm test
 
 # Run specific test file
-npx playwright test tests/rate-limit/auth.spec.ts
-npx playwright test tests/rate-limit/window-reset.spec.ts
+npx playwright test tests/rate-limit/tc01-auth-signin.spec.ts
+
+# Run with HTML report
+npx playwright test --reporter=html
 ```
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `API_BASE_URL` | Customer API base URL | https://api-sit.askmebill.com |
-| `AUTH_EMAIL` | Test account A email | admin_eiji |
-| `AUTH_PASSWORD` | Test account A password | 0897421942@Earth |
-| `AUTH_EMAIL_B` | Test account B email (TC-05) | admintest |
-| `AUTH_PASSWORD_B` | Test account B password | 0897421942@Earth |
-| `BO_API_BASE_URL` | BO/Admin API base URL | https://apixint-sit.askmebill.com |
-| `BO_EMAIL` | Superadmin email (TC-08) | superadmin_eiji |
-| `BO_PASSWORD` | Superadmin password | 0897421942@Earth |
-| `BO_2FA` | Superadmin 2FA | 954900 |
+| Variable | Description |
+|----------|-------------|
+| `API_BASE_URL` | Customer API base URL |
+| `AUTH_EMAIL` | Test account email (eiji) |
+| `AUTH_PASSWORD` | Test account password |
+| `AUTH_2FA` | TOTP code |
+| `AUTH_EMAIL_C-L` | Additional users for TC-06 (eiji2-eiji11) |
+| `BO_API_BASE_URL` | BO/Admin API base URL |
+| `BO_EMAIL` | Superadmin email |
+| `BO_PASSWORD` | Superadmin password |
+| `BO_2FA` | Superadmin 2FA |
 
 ## TC-07 Expected Response Format
 
@@ -93,13 +105,23 @@ When rate limited (HTTP 429):
 }
 ```
 
-## Pending (need credentials)
+## Token Caching
 
-- **TC-05 User Isolation:** ต้องมี 2 user accounts
-- **TC-08 ADMIN Exempt:** ต้องมี ADMIN/SUPERADMIN account
+Tests use token caching via `global-setup.ts`:
+- Pre-fetches tokens for all users before tests
+- Caches to `tests/helpers/token-cache.json`
+- Tokens valid for 1 hour
+- Avoids IP rate limit with 65s delay between sign-ins
+
+## Rate Limit Behavior (Important)
+
+- Rate limit counter is **SHARED across ALL standard endpoints** for same user
+- When rate limited, all endpoints return HTTP 429 with code 10027
+- Window resets after 61 seconds
+- Use `clearRateLimitForUser()` to reset user-based rate limit
+- IP-based rate limit (sign-in) cannot be cleared, must wait 61s
 
 ## Related Files
 
 - `D:\Users\nuttawat.jun\Downloads\swag-customer.json` - Customer API Swagger (76 endpoints)
 - `D:\Users\nuttawat.jun\Downloads\swag-admin.json` - Admin API Swagger (101 endpoints)
-- `D:\Users\nuttawat.jun\Documents\eiji\API-Calls-2026-04-16.md` - Captured API calls
