@@ -265,7 +265,7 @@ export const TC06_USERS = [
   },
   {
     name: 'User I',
-    email: process.env.AUTH_EMAIL_I || 'eiji8',
+    email: process.env.AUTH_EMAIL_I || 'eiji12',
     password: process.env.AUTH_PASSWORD_I || '0897421942@Earth',
     totp: process.env.AUTH_2FA || '954900',
     endpoints: [
