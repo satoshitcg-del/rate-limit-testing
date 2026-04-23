@@ -25,6 +25,7 @@ export interface RateLimitResult {
   requestCount: number;
   rateLimitCode?: number;
   rateLimitMessage?: string;
+  isUnauthorized?: boolean; // true when statusCode is 401
 }
 
 export interface BurstTestConfig {
@@ -36,6 +37,7 @@ export interface BurstTestConfig {
   body?: object;
   requestContext?: APIRequestContext;
   uploadFile?: { path: string; fieldName: string; mimeType?: string };
+  refreshToken?: () => Promise<string | undefined>; // Optional: callback to get fresh token on 401
 }
 
 function extractRateLimitInfo(response: APIResponse) {
@@ -71,7 +73,7 @@ function getDefaultHeaders(token?: string): Record<string, string> {
 
 export async function burstTest(config: BurstTestConfig): Promise<RateLimitResult[]> {
   const baseURL = config.baseURL || getApiBaseUrl();
-  const { endpoint, method, token, burstSize = 100, body, requestContext, uploadFile } = config;
+  const { endpoint, method, token, burstSize = 100, body, requestContext, uploadFile, refreshToken } = config;
   const results: RateLimitResult[] = [];
 
   const ctx = requestContext || await request.newContext();
@@ -128,6 +130,7 @@ export async function burstTest(config: BurstTestConfig): Promise<RateLimitResul
         requestCount: i,
         rateLimitCode,
         rateLimitMessage,
+        isUnauthorized: response.status() === 401,
       };
 
       console.log(`[burstTest] Request ${i}: status=${statusCode}, isRateLimited=${result.isRateLimited}`);
@@ -135,6 +138,18 @@ export async function burstTest(config: BurstTestConfig): Promise<RateLimitResul
 
       if (response.status() === 429) {
         break;
+      }
+
+      // If 401 and refreshToken callback provided, get new token and retry
+      if (response.status() === 401 && refreshToken) {
+        console.log(`[burstTest] Got 401, refreshing token...`);
+        const newToken = await refreshToken();
+        if (newToken) {
+          // Update headers with new token
+          headers['Authorization'] = `Bearer ${newToken}`;
+          // Retry this request
+          continue;
+        }
       }
     } catch (e: any) {
       console.log(`[burstTest] Request ${i}: ERROR - ${e.message}`);
@@ -296,9 +311,9 @@ export const TC06_USERS = [
 
 /**
  * Token cache per worker (in-memory)
- * Key: email, Value: { token, expiresAt }
+ * Key: email, Value: { token, refreshToken, expiresAt }
  */
-const tokenCache = new Map<string, { token: string; expiresAt: number }>();
+const tokenCache = new Map<string, { token: string; refreshToken?: string; expiresAt: number }>();
 
 /**
  * Load tokens from file cache (if exists)
@@ -382,6 +397,7 @@ async function fetchTokenWithRetry(email: string, password: string, totp: string
   }
 
   const token = signInData.data.token;
+  const refreshToken = signInData.data.refresh_token;
   const totpResp = await authClient.verifyTotp(token, totp, true);
 
   // Check if TOTP also got rate limited
@@ -398,7 +414,30 @@ async function fetchTokenWithRetry(email: string, password: string, totp: string
     return undefined;
   }
 
-  return totpResp?.data?.token || token;
+  const finalToken = totpResp?.data?.token || token;
+  return finalToken;
+}
+
+/**
+ * Refresh token using refresh_token
+ * Returns new access token or undefined if failed
+ */
+export async function refreshAccessToken(refreshToken: string): Promise<string | undefined> {
+  console.log(`[DEBUG] Refreshing access token...`);
+  const resp = await authClient.refreshToken(refreshToken);
+
+  if (resp?.code === 10027 || resp?.code === 429) {
+    console.warn(`[DEBUG] Refresh token rate limited (${resp?.code})`);
+    return undefined;
+  }
+
+  if (resp?.data?.token) {
+    console.log(`[DEBUG] Refresh token success`);
+    return resp.data.token;
+  }
+
+  console.warn(`[DEBUG] Refresh token failed: ${resp?.message}`);
+  return undefined;
 }
 
 /**

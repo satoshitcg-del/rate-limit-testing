@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
   SIGN_IN: '/v1/md/auth/customer/sign-in',
   VERIFY: '/v1/md/auth/customer/verify',
   TOTP_VERIFY: '/v1/md/auth/verify/totp',
+  REFRESH_TOKEN: '/v1/md/auth/customer/refresh-token',
   BO_SIGN_IN: '/v1/auth/sign-in',
   BO_VERIFY: '/v1/auth/verify',
   CLEAR_RATELIMIT: '/v1/system/clear-ratelimit',
@@ -67,6 +68,19 @@ export class AuthClient {
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ totp_key: totpKey, generate_token: generateToken }),
+    });
+
+    return response.json();
+  }
+
+  async refreshToken(refreshToken: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}${API_ENDPOINTS.REFRESH_TOKEN}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ refresh_token: refreshToken }),
     });
 
     return response.json();
