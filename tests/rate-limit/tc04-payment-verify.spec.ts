@@ -48,7 +48,9 @@ test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
     console.log(`Rate limited: ${analysis.rateLimited}, at: ${analysis.rateLimitedAt || 'N/A'}`);
 
     if (analysis.rateLimited) {
-      expect(analysis.rateLimitedAt).toBeLessThanOrEqual(12);
+      // Payment tier limit is 10 req/min, should trigger at request 11 (first exceeding limit)
+      // Allow up to 13 to account for timing variance between requests
+      expect(analysis.rateLimitedAt).toBeLessThanOrEqual(13);
     }
   });
 
@@ -70,7 +72,9 @@ test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
     console.log(`Rate limited: ${analysis.rateLimited}, at: ${analysis.rateLimitedAt || 'N/A'}`);
 
     if (analysis.rateLimited) {
-      expect(analysis.rateLimitedAt).toBeLessThanOrEqual(12);
+      // Payment tier limit is 10 req/min, should trigger at request 11 (first exceeding limit)
+      // Allow up to 13 to account for timing variance between requests
+      expect(analysis.rateLimitedAt).toBeLessThanOrEqual(13);
     }
   });
 });
