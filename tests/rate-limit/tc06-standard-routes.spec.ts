@@ -52,8 +52,6 @@ test.describe('TC-06: Standard Routes Rate Limit (60 req/min)', () => {
           const canHitBefore = initialResult.some(r => r.statusCode === 200);
           console.log(`Can hit before: ${canHitBefore ? '✅' : '❌'}`);
 
-          await clearRateLimitForUser(user.email);
-
           const burstResult = await burstTest({
             baseURL,
             endpoint,
