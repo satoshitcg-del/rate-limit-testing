@@ -115,6 +115,7 @@ npx playwright test -g "TC-01-01"
 
 GitHub Actions workflow at `.github/workflows/playwright.yml`
 - Runs on push to main
+- Clears token cache before each run to ensure fresh tokens (prevents 401 errors)
 - Uploads HTML report as artifact (14 days retention)
 - Uploads test results as artifact
 - Secrets required: AUTH_EMAIL, AUTH_PASSWORD, AUTH_2FA, AUTH_EMAIL_C-L, AUTH_PASSWORD_C-L, API_BASE_URL, BO_API_BASE_URL
@@ -159,7 +160,8 @@ await authClient.clearRateLimit();      // Clear IP-based limit (strict tier)
 `global-setup.ts` pre-fetches tokens before tests:
 - Uses `getFreshToken()` from rate-limit-analyzer.ts
 - 65s delay between users to avoid IP rate limit (5 req/min)
-- File cache at `tests/helpers/token-cache.json` (1 hour expiry)
+- File cache at `tests/helpers/token-cache.json` (1 hour expiry, 30 min buffer before refresh)
+- CI automatically clears cache before each run to prevent 401 errors
 
 ## Best Practices
 

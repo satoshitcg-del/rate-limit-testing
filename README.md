@@ -110,8 +110,9 @@ When rate limited (HTTP 429):
 Tests use token caching via `global-setup.ts`:
 - Pre-fetches tokens for all users before tests
 - Caches to `tests/helpers/token-cache.json`
-- Tokens valid for 1 hour
+- Tokens valid for 1 hour (30 min buffer before refresh)
 - Avoids IP rate limit with 65s delay between sign-ins
+- CI automatically clears cache before each run to prevent 401 errors
 
 ## Rate Limit Behavior (Important)
 
