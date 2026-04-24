@@ -21,6 +21,9 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    - name: Clear expired token cache
+      run: rm -f tests/helpers/token-cache.json
+
     - name: Create .env file
       run: |
         cat > .env << EOF
