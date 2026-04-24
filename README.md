@@ -57,8 +57,8 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 | Tier | Endpoint | Limit | Key |
 |------|----------|-------|-----|
 | strict | POST /v1/auth/customer/sign-in | 5 req/min | IP |
-| payment | POST /v1/billing-note/payment/verify | 10 req/min | userID |
-| standard | CUSTOMER routes อื่นๆ | 60 req/min | userID (fallback IP) |
+| payment | POST /v1/billing-note/payment/verify | 10 req/min | userID+IP |
+| standard | CUSTOMER routes อื่นๆ | 60 req/min | userID+IP |
 
 ## Setup
 
@@ -124,5 +124,5 @@ Tests use token caching via `global-setup.ts`:
 
 ## Related Files
 
-- `D:\Users\nuttawat.jun\Downloads\swag-customer.json` - Customer API Swagger (76 endpoints)
-- `D:\Users\nuttawat.jun\Downloads\swag-admin.json` - Admin API Swagger (101 endpoints)
+- `swag-customer.json` - Customer API Swagger (76 endpoints)
+- `swag-admin.json` - Admin API Swagger (101 endpoints)
