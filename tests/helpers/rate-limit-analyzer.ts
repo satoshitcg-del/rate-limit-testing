@@ -200,8 +200,8 @@ export const TC06_USERS = [
   {
     name: 'User C',
     email: process.env.AUTH_EMAIL_C || 'eiji2',
-    password: process.env.AUTH_PASSWORD_C || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_C || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v1/md/user/profile',
       '/v1/md/customer/sub-accounts?page=1&limit=25',
@@ -211,8 +211,8 @@ export const TC06_USERS = [
   {
     name: 'User D',
     email: process.env.AUTH_EMAIL_D || 'eiji3',
-    password: process.env.AUTH_PASSWORD_D || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_D || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v1/md/billing-note/customer-export-all/ALL',
       '/v1/md/billing-note/customer-export-all/UNPAID',
@@ -222,8 +222,8 @@ export const TC06_USERS = [
   {
     name: 'User E',
     email: process.env.AUTH_EMAIL_E || 'eiji8',
-    password: process.env.AUTH_PASSWORD_E || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_E || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v2/md/billing-note/customer?status=PARTIALPAID,DELIVERED,VERIFYPAYMENT&page=1&limit=25',
       '/v2/md/billing-note/customer?status=PAID&page=1&limit=25',
@@ -233,8 +233,8 @@ export const TC06_USERS = [
   {
     name: 'User F',
     email: process.env.AUTH_EMAIL_F || 'eiji9',
-    password: process.env.AUTH_PASSWORD_F || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_F || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v1/md/billing-note/customer?status=PAID',
       '/v1/md/billing-note/customer?status=PARTIALPAID,DELIVERED,VERIFYPAYMENT',
@@ -244,8 +244,8 @@ export const TC06_USERS = [
   {
     name: 'User G',
     email: process.env.AUTH_EMAIL_G || 'eiji10',
-    password: process.env.AUTH_PASSWORD_G || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_G || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v2/md/billing-note/customer?status=REFUND&page=1&limit=25',
       '/v2/md/billing-note/customer?status=VOID&page=1&limit=25',
@@ -255,8 +255,8 @@ export const TC06_USERS = [
   {
     name: 'User H',
     email: process.env.AUTH_EMAIL_H || 'eiji11',
-    password: process.env.AUTH_PASSWORD_H || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_H || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v1/md/billing-note/customer?status=EXCEED',
       '/v1/md/billing-note/customer?status=VOID',
@@ -266,8 +266,8 @@ export const TC06_USERS = [
   {
     name: 'User I',
     email: process.env.AUTH_EMAIL_I || 'eiji12',
-    password: process.env.AUTH_PASSWORD_I || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_I || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v1/md/billing-note/customer-export-all/CANCELLED',
       '/v1/md/billing-note/customer-export-all/EXCEED',
@@ -277,8 +277,8 @@ export const TC06_USERS = [
   {
     name: 'User J',
     email: process.env.AUTH_EMAIL_J || 'eiji9',
-    password: process.env.AUTH_PASSWORD_J || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_J || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v2/md/billing-note/customer?status=PARTIALPAID&page=1&limit=25',
       '/v2/md/billing-note/customer?status=DELIVERED&page=1&limit=25',
@@ -288,8 +288,8 @@ export const TC06_USERS = [
   {
     name: 'User K',
     email: process.env.AUTH_EMAIL_K || 'eiji10',
-    password: process.env.AUTH_PASSWORD_K || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_K || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v1/md/customer/sub-accounts?page=2&limit=25',
       '/v1/md/customer/sub-accounts?page=3&limit=25',
@@ -299,8 +299,8 @@ export const TC06_USERS = [
   {
     name: 'User L',
     email: process.env.AUTH_EMAIL_L || 'eiji11',
-    password: process.env.AUTH_PASSWORD_L || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD_L || '',
+    totp: process.env.AUTH_2FA || '',
     endpoints: [
       '/v1/md/user/profile',
       '/v1/md/billing-note/customer?status=PAID&page=1&limit=10',

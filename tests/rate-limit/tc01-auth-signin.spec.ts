@@ -16,7 +16,7 @@ test.describe('TC-01: Sign-in Rate Limit (Strict Tier)', () => {
 
   const credentials = {
     email: process.env.AUTH_EMAIL || 'eiji',
-    password: process.env.AUTH_PASSWORD || '0897421942@Earth',
+    password: process.env.AUTH_PASSWORD || '',
   };
 
   async function checkRateLimitTriggered(results: any[]): Promise<number> {
@@ -113,7 +113,7 @@ test.describe('TC-01: Sign-in Rate Limit (Strict Tier)', () => {
       baseURL,
       endpoint: '/v1/md/auth/verify/totp',
       method: 'POST',
-      body: { totp_key: '954900', generate_token: true },
+      body: { totp_key: process.env.AUTH_2FA || '', generate_token: true },
       token,
       burstSize: 10,
     });

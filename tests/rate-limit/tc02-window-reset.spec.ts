@@ -16,7 +16,7 @@ test.describe('TC-02: Window Reset', () => {
 
   const credentials = {
     email: process.env.AUTH_EMAIL || 'eiji',
-    password: process.env.AUTH_PASSWORD || '0897421942@Earth',
+    password: process.env.AUTH_PASSWORD || '',
   };
 
   let token: string;
@@ -73,21 +73,22 @@ test.describe('TC-02: Window Reset', () => {
       endpoint: '/v1/md/auth/customer/sign-in',
       method: 'POST',
       body: credentials,
-      burstSize: 6,
+      burstSize: 15,
     });
 
+    // sign-in อาจถูก admin block (10019 → 400 ไม่มี 429) → ทดสอบ reset ไม่ได้
+    const codes = results.map(r => r.statusCode);
+    const ipAdminBlocked = codes.some(s => s === 400) && !codes.some(s => s === 429);
+    test.skip(ipAdminBlocked, 'IP ถูกบล็อก (10019) — ทดสอบ window reset ไม่ได้ (ไม่ใช่ pass)');
+
     const firstWindowLimited = results.some(r => r.isRateLimited);
+    expect(firstWindowLimited, 'window แรกต้องโดน rate limit ก่อนทดสอบ reset').toBe(true);
 
-    if (firstWindowLimited) {
-      console.log('First window: Rate limited (as expected)');
-      console.log('Waiting 61 seconds...');
-      await new Promise(resolve => setTimeout(resolve, 61000));
+    console.log('First window: Rate limited (as expected). Waiting 61 seconds...');
+    await new Promise(resolve => setTimeout(resolve, 61000));
 
-      console.log('Step 2: Testing new window...');
-      const canReset = await checkAfterReset();
-      expect(canReset).toBe(true);
-    } else {
-      console.log('Note: Rate limit not triggered in this test run');
-    }
+    console.log('Step 2: Testing new window...');
+    const canReset = await checkAfterReset();
+    expect(canReset).toBe(true);
   });
 });

@@ -35,6 +35,7 @@ export default defineConfig({
         '**/tc06-*.spec.ts',
         '**/tc07-response-format.spec.ts',
         '**/tc08-admin-exempt.spec.ts',
+        '**/tc10-*.spec.ts',
       ],
       use: { ...devices['Desktop Chrome'] },
       workers: 12,  // 12 workers = 12 users พอดี (C-L)

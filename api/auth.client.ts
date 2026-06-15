@@ -56,7 +56,7 @@ export class AuthClient {
       body: JSON.stringify(credentials),
     });
 
-    return response.json();
+    return (await response.json()) as SignInResponse;
   }
 
   async verifyTotp(token: string, totpKey: string, generateToken = true): Promise<any> {

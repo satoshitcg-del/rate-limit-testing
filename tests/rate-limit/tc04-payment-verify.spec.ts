@@ -16,8 +16,8 @@ test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
 
   const credentials = {
     email: process.env.AUTH_EMAIL || 'eiji',
-    password: process.env.AUTH_PASSWORD || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD || '',
+    totp: process.env.AUTH_2FA || '',
   };
 
   const paymentBody = { invoice_id: '69e6760f466b99885541692c', amount: 100 };
@@ -34,6 +34,7 @@ test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
     const token = await getFreshToken();
     console.log(`\n=== TC-04-01: Payment Verify Rate Limit ===`);
     console.log(`Login success: ${!!token}`);
+    test.skip(!token, 'ไม่ได้ token — ข้าม payment rate limit test (ไม่ใช่ pass)');
 
     const result = await burstTest({
       baseURL,
@@ -47,17 +48,17 @@ test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
     const analysis = analyzeRateLimitResults(result);
     console.log(`Rate limited: ${analysis.rateLimited}, at: ${analysis.rateLimitedAt || 'N/A'}`);
 
-    if (analysis.rateLimited) {
-      // Payment tier limit is 10 req/min, should trigger at request 11 (first exceeding limit)
-      // Allow up to 13 to account for timing variance between requests
-      expect(analysis.rateLimitedAt).toBeLessThanOrEqual(13);
-    }
+    // payment tier = 10 req/min: burst 15 ต้องเกิด rate limit เสมอ
+    expect(analysis.rateLimited, 'payment verify ต้องโดน rate limit หลังเกิน 10 ครั้ง').toBe(true);
+    // ควร trigger ~ครั้งที่ 11; เผื่อ timing variance ถึง 13
+    expect(analysis.rateLimitedAt).toBeLessThanOrEqual(13);
   });
 
   test('TC-04-02: Payment verify rate limit ควรเป็น per user', async () => {
     const token = await getFreshToken();
     console.log(`\n=== TC-04-02: Per-User Rate Limit ===`);
     console.log(`Login success: ${!!token}`);
+    test.skip(!token, 'ไม่ได้ token — ข้าม payment rate limit test (ไม่ใช่ pass)');
 
     const result = await burstTest({
       baseURL,
@@ -71,10 +72,8 @@ test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
     const analysis = analyzeRateLimitResults(result);
     console.log(`Rate limited: ${analysis.rateLimited}, at: ${analysis.rateLimitedAt || 'N/A'}`);
 
-    if (analysis.rateLimited) {
-      // Payment tier limit is 10 req/min, should trigger at request 11 (first exceeding limit)
-      // Allow up to 13 to account for timing variance between requests
-      expect(analysis.rateLimitedAt).toBeLessThanOrEqual(13);
-    }
+    // payment tier = 10 req/min: burst 12 ต้องเกิด rate limit เสมอ
+    expect(analysis.rateLimited, 'payment verify ต้องโดน rate limit หลังเกิน 10 ครั้ง').toBe(true);
+    expect(analysis.rateLimitedAt).toBeLessThanOrEqual(13);
   });
 });

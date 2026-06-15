@@ -14,8 +14,8 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
 
   const credentials = {
     email: process.env.AUTH_EMAIL || 'eiji',
-    password: process.env.AUTH_PASSWORD || '0897421942@Earth',
-    totp: process.env.AUTH_2FA || '954900',
+    password: process.env.AUTH_PASSWORD || '',
+    totp: process.env.AUTH_2FA || '',
   };
 
   async function getFreshToken(): Promise<string | undefined> {
@@ -26,24 +26,29 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
     return totpResp?.data?.token || token;
   }
 
+  // sign-in (strict tier) อาจถูก admin block ด้วย code 10019 (เห็นเป็น 400 ไม่มี 429)
+  // กรณีนี้ทดสอบ rate limit ไม่ได้ → ใช้ skip แทนที่จะ false-fail
+  function ipBlocked(results: { statusCode: number }[]): boolean {
+    const codes = results.map((r) => r.statusCode);
+    return codes.some((s) => s === 400) && !codes.some((s) => s === 429);
+  }
+
   test('TC-07-01: ควรได้ 429 response format ที่ถูกต้อง', async () => {
     const results = await burstTest({
       baseURL,
       endpoint: '/v1/md/auth/customer/sign-in',
       method: 'POST',
       body: { email: credentials.email, password: credentials.password },
-      burstSize: 10,
+      burstSize: 15,
     });
 
     console.log('\n=== TC-07-01: 429 Response Format ===');
-    const rateLimitedResult = results.find(r => r.isRateLimited);
+    test.skip(ipBlocked(results), 'IP ถูกบล็อก (10019) — ทดสอบ 429 format ไม่ได้ (ไม่ใช่ pass)');
 
-    if (rateLimitedResult) {
-      expect(rateLimitedResult.statusCode).toBe(429);
-      console.log(`Status: ${rateLimitedResult.statusCode}, Expected: 429`);
-    } else {
-      console.log('⚠️ Rate limit not triggered');
-    }
+    // burst 15 เกินทั้ง 5 และ 10 → ต้องเกิด 429 เสมอ (limit-agnostic)
+    const rateLimitedResult = results.find(r => r.isRateLimited);
+    expect(rateLimitedResult, 'ต้องเกิด 429 ภายใน burst 15 ครั้ง').toBeDefined();
+    expect(rateLimitedResult!.statusCode).toBe(429);
   });
 
   test('TC-07-02: ควรได้ error code ที่ถูกต้อง (10027)', async () => {
@@ -52,20 +57,21 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
       endpoint: '/v1/md/auth/customer/sign-in',
       method: 'POST',
       body: { email: credentials.email, password: credentials.password },
-      burstSize: 10,
+      burstSize: 15,
     });
 
     console.log('\n=== TC-07-02: Error Code Validation ===');
+    test.skip(ipBlocked(results), 'IP ถูกบล็อก (10019) — ตรวจ error code ไม่ได้ (ไม่ใช่ pass)');
+
     const rateLimitedResult = results.find(r => r.isRateLimited);
-    console.log(`Rate limit code: ${rateLimitedResult?.rateLimitCode || 'N/A'}, Expected: 10027`);
+    expect(rateLimitedResult, 'ต้องเกิด 429 ก่อนตรวจ code').toBeDefined();
+    console.log(`Rate limit code: ${rateLimitedResult!.rateLimitCode}, Expected: 10027`);
+    expect(rateLimitedResult!.rateLimitCode, 'body.code ตอนโดน rate limit ต้อง = 10027').toBe(10027);
   });
 
   test('TC-07-03: ควรมี rate limit headers ใน response', async () => {
     const token = await getFreshToken();
-    if (!token) {
-      console.log('⚠️ Could not obtain token - skipping');
-      return;
-    }
+    test.skip(!token, 'ไม่ได้ token — ข้าม (ไม่ใช่ pass)');
 
     const results = await burstTest({
       baseURL,
@@ -77,19 +83,16 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
 
     console.log('\n=== TC-07-03: Rate Limit Headers ===');
     const rateLimited = results.find(r => r.isRateLimited);
+    expect(rateLimited, 'standard tier (60/min) ต้องโดน rate limit ภายใน 65 ครั้ง').toBeDefined();
 
-    if (rateLimited) {
-      console.log(`Limit: ${rateLimited.rateLimit.limit}, Remaining: ${rateLimited.rateLimit.remaining}`);
-      console.log(`Reset: ${rateLimited.rateLimit.reset}, RetryAfter: ${rateLimited.rateLimit.retryAfter}`);
-    }
+    // headers อาจไม่มี (validators.ts ระบุว่าเป็น informational ไม่ใช่ข้อบังคับ) — log อย่างเดียว
+    console.log(`Limit: ${rateLimited!.rateLimit.limit}, Remaining: ${rateLimited!.rateLimit.remaining}`);
+    console.log(`Reset: ${rateLimited!.rateLimit.reset}, RetryAfter: ${rateLimited!.rateLimit.retryAfter}`);
   });
 
   test('TC-07-04: Standard tier ควรได้ 429 format เหมือน strict tier', async () => {
     const token = await getFreshToken();
-    if (!token) {
-      console.log('⚠️ Could not obtain token - skipping');
-      return;
-    }
+    test.skip(!token, 'ไม่ได้ token — ข้าม (ไม่ใช่ pass)');
 
     const results = await burstTest({
       baseURL,
@@ -101,10 +104,7 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
 
     console.log('\n=== TC-07-04: Standard Tier 429 Format ===');
     const rateLimitedResult = results.find(r => r.isRateLimited);
-
-    if (rateLimitedResult) {
-      console.log(`Status: ${rateLimitedResult.statusCode}, Expected: 429`);
-      expect(rateLimitedResult.statusCode).toBe(429);
-    }
+    expect(rateLimitedResult, 'standard tier ต้องโดน 429 ภายใน 70 ครั้ง').toBeDefined();
+    expect(rateLimitedResult!.statusCode).toBe(429);
   });
 });

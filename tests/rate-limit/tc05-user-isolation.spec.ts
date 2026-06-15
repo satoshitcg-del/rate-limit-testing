@@ -16,14 +16,14 @@ const baseURL = getApiBaseUrl();
 
 const userA = {
   email: process.env.AUTH_EMAIL || 'eiji',
-  password: process.env.AUTH_PASSWORD || '0897421942@Earth',
-  totp: process.env.AUTH_2FA || '954900',
+  password: process.env.AUTH_PASSWORD || '',
+  totp: process.env.AUTH_2FA || '',
 };
 
 const userB = {
   email: process.env.AUTH_EMAIL_B || 'admintest',
-  password: process.env.AUTH_PASSWORD_B || '0897421942@Earth',
-  totp: process.env.AUTH_2FA || '954900',
+  password: process.env.AUTH_PASSWORD_B || '',
+  totp: process.env.AUTH_2FA || '',
 };
 
 test.describe('TC-05: User Isolation', () => {
@@ -36,7 +36,7 @@ test.describe('TC-05: User Isolation', () => {
     const userAToken = await authClient.getTokenWithTotp(userA);
     console.log(`[DEBUG] userA token: ${userAToken ? 'OK' : 'FAILED'}`);
     if (!userAToken) {
-      console.log('⚠️ Could not obtain User A token - skipping');
+      test.skip(true, 'ไม่ได้ token User A — ข้าม (ไม่ใช่ pass)');
       return;
     }
 
@@ -60,8 +60,10 @@ test.describe('TC-05: User Isolation', () => {
     const userARateLimitedAt = userAResults.find(r => r.isRateLimited)?.requestCount;
     console.log(`User A rate limited at request #${userARateLimitedAt || 'not triggered'}`);
 
+    // หมายเหตุ: userB = admintest ซึ่ง global-setup ระบุว่า creds มักผิด
+    // แนะนำเปลี่ยน AUTH_EMAIL_B เป็น account ที่ login ได้จริง เพื่อให้เทสต์นี้รันจริง
     if (!userBToken) {
-      console.log('⚠️ Could not obtain User B token - skipping');
+      test.skip(true, 'ไม่ได้ token User B (admintest creds?) — ข้าม (ไม่ใช่ pass)');
       return;
     }
 
@@ -78,10 +80,8 @@ test.describe('TC-05: User Isolation', () => {
     const userBRateLimitedAt = userBResults.find(r => r.isRateLimited)?.requestCount;
     console.log(`User B rate limited at request #${userBRateLimitedAt || 'not triggered'}`);
 
-    if (userARateLimitedAt && userBRateLimitedAt) {
-      expect(userARateLimitedAt).toBeLessThanOrEqual(12);
-      expect(userBRateLimitedAt).toBeLessThanOrEqual(12);
-    }
+    expect(userARateLimitedAt, 'User A payment ต้องโดน rate limit').toBeLessThanOrEqual(12);
+    expect(userBRateLimitedAt, 'User B payment ต้องโดน rate limit (counter แยกราย user)').toBeLessThanOrEqual(12);
   });
 
   test('TC-05-02: User B ไม่ควรโดน block เมื่อ User A โดน rate limit', async () => {
@@ -91,7 +91,7 @@ test.describe('TC-05: User Isolation', () => {
     const userAToken = await authClient.getTokenWithTotp(userA);
     console.log(`[DEBUG] userA token: ${userAToken ? 'OK' : 'FAILED'}`);
     if (!userAToken) {
-      console.log('⚠️ Could not obtain User A token - skipping');
+      test.skip(true, 'ไม่ได้ token User A — ข้าม (ไม่ใช่ pass)');
       return;
     }
 
@@ -115,8 +115,9 @@ test.describe('TC-05: User Isolation', () => {
     console.log('User A blocked. User B sending requests...');
     await new Promise(resolve => setTimeout(resolve, 1000));
 
+    // หมายเหตุ: userB = admintest (creds มักผิดตาม global-setup) — แนะนำเปลี่ยนเป็น account จริง
     if (!userBToken) {
-      console.log('⚠️ Could not obtain User B token - skipping');
+      test.skip(true, 'ไม่ได้ token User B (admintest creds?) — ข้าม (ไม่ใช่ pass)');
       return;
     }
 

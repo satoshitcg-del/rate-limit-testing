@@ -43,14 +43,14 @@ function releaseLock() {
 
 function getUsersFromEnv(): UserConfig[] {
   const users: UserConfig[] = [];
-  const totp = process.env.AUTH_2FA || '954900';
+  const totp = process.env.AUTH_2FA || '';
 
   // Main user (eiji) - used in TC-01, TC-02, TC-05
   if (process.env.AUTH_EMAIL) {
     users.push({
       key: 'eiji',
       email: process.env.AUTH_EMAIL,
-      password: process.env.AUTH_PASSWORD || '0897421942@Earth',
+      password: process.env.AUTH_PASSWORD || '',
       totp,
     });
   }
@@ -61,16 +61,16 @@ function getUsersFromEnv(): UserConfig[] {
 
   // Additional users C-L (used in TC-06)
   const additionalUsers: Array<{ key: string; email: string; password: string } | null> = [
-    process.env.AUTH_EMAIL_C ? { key: 'User C', email: process.env.AUTH_EMAIL_C, password: process.env.AUTH_PASSWORD_C || '0897421942@Earth' } : null,
-    process.env.AUTH_EMAIL_D ? { key: 'User D', email: process.env.AUTH_EMAIL_D, password: process.env.AUTH_PASSWORD_D || '0897421942@Earth' } : null,
-    process.env.AUTH_EMAIL_E ? { key: 'User E', email: process.env.AUTH_EMAIL_E, password: process.env.AUTH_PASSWORD_E || '0897421942@Earth' } : null,
-    process.env.AUTH_EMAIL_F ? { key: 'User F', email: process.env.AUTH_EMAIL_F, password: process.env.AUTH_PASSWORD_F || '0897421942@Earth' } : null,
-    process.env.AUTH_EMAIL_G ? { key: 'User G', email: process.env.AUTH_EMAIL_G, password: process.env.AUTH_PASSWORD_G || '0897421942@Earth' } : null,
-    process.env.AUTH_EMAIL_H ? { key: 'User H', email: process.env.AUTH_EMAIL_H, password: process.env.AUTH_PASSWORD_H || '0897421942@Earth' } : null,
-    process.env.AUTH_EMAIL_I ? { key: 'User I', email: process.env.AUTH_EMAIL_I, password: process.env.AUTH_PASSWORD_I || '0897421942@Earth' } : null,
-    process.env.AUTH_EMAIL_J ? { key: 'User J', email: process.env.AUTH_EMAIL_J, password: process.env.AUTH_PASSWORD_J || '0897421942@Earth' } : null,
-    process.env.AUTH_EMAIL_K ? { key: 'User K', email: process.env.AUTH_EMAIL_K, password: process.env.AUTH_PASSWORD_K || '0897421942@Earth' } : null,
-    process.env.AUTH_EMAIL_L ? { key: 'User L', email: process.env.AUTH_EMAIL_L, password: process.env.AUTH_PASSWORD_L || '0897421942@Earth' } : null,
+    process.env.AUTH_EMAIL_C ? { key: 'User C', email: process.env.AUTH_EMAIL_C, password: process.env.AUTH_PASSWORD_C || '' } : null,
+    process.env.AUTH_EMAIL_D ? { key: 'User D', email: process.env.AUTH_EMAIL_D, password: process.env.AUTH_PASSWORD_D || '' } : null,
+    process.env.AUTH_EMAIL_E ? { key: 'User E', email: process.env.AUTH_EMAIL_E, password: process.env.AUTH_PASSWORD_E || '' } : null,
+    process.env.AUTH_EMAIL_F ? { key: 'User F', email: process.env.AUTH_EMAIL_F, password: process.env.AUTH_PASSWORD_F || '' } : null,
+    process.env.AUTH_EMAIL_G ? { key: 'User G', email: process.env.AUTH_EMAIL_G, password: process.env.AUTH_PASSWORD_G || '' } : null,
+    process.env.AUTH_EMAIL_H ? { key: 'User H', email: process.env.AUTH_EMAIL_H, password: process.env.AUTH_PASSWORD_H || '' } : null,
+    process.env.AUTH_EMAIL_I ? { key: 'User I', email: process.env.AUTH_EMAIL_I, password: process.env.AUTH_PASSWORD_I || '' } : null,
+    process.env.AUTH_EMAIL_J ? { key: 'User J', email: process.env.AUTH_EMAIL_J, password: process.env.AUTH_PASSWORD_J || '' } : null,
+    process.env.AUTH_EMAIL_K ? { key: 'User K', email: process.env.AUTH_EMAIL_K, password: process.env.AUTH_PASSWORD_K || '' } : null,
+    process.env.AUTH_EMAIL_L ? { key: 'User L', email: process.env.AUTH_EMAIL_L, password: process.env.AUTH_PASSWORD_L || '' } : null,
   ];
 
   for (const u of additionalUsers) {
@@ -84,6 +84,16 @@ function getUsersFromEnv(): UserConfig[] {
 
 async function globalSetup() {
   console.log('[globalSetup] Starting...');
+
+  // Fail-fast: credentials must come from .env (no hardcoded fallbacks)
+  const requiredEnv = ['AUTH_EMAIL', 'AUTH_PASSWORD', 'AUTH_2FA'];
+  const missingEnv = requiredEnv.filter((k) => !process.env[k]);
+  if (missingEnv.length > 0) {
+    throw new Error(
+      `[globalSetup] Missing required env vars: ${missingEnv.join(', ')}. ` +
+        'Copy .env.example to .env and fill in real credentials (do NOT commit .env).',
+    );
+  }
 
   // Check if cache exists and is fresh (at least 30 min remaining)
   if (fs.existsSync(CACHE_FILE)) {

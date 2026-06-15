@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { readFile, writeFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -8,13 +9,13 @@ const CACHE_FILE = path.join(__dirname, '..', 'fixtures', 'tokens.json');
 const API_BASE = 'https://api-sit.askmebill.com';
 
 const users = [
-  { name: 'eiji', email: 'eiji', password: '0897421942@Earth' },
-  { name: 'eiji2', email: 'eiji2', password: '0897421942@Earth' },
-  { name: 'eiji3', email: 'eiji3', password: '0897421942@Earth' },
-  { name: 'eiji4', email: 'eiji4', password: '0897421942@Earth' },
-  { name: 'eiji5', email: 'eiji5', password: '0897421942@Earth' },
-  { name: 'eiji6', email: 'eiji6', password: '0897421942@Earth' },
-  { name: 'eiji7', email: 'eiji7', password: '0897421942@Earth' },
+  { name: 'eiji', email: 'eiji', password: process.env.AUTH_PASSWORD || '' },
+  { name: 'eiji2', email: 'eiji2', password: process.env.AUTH_PASSWORD || '' },
+  { name: 'eiji3', email: 'eiji3', password: process.env.AUTH_PASSWORD || '' },
+  { name: 'eiji4', email: 'eiji4', password: process.env.AUTH_PASSWORD || '' },
+  { name: 'eiji5', email: 'eiji5', password: process.env.AUTH_PASSWORD || '' },
+  { name: 'eiji6', email: 'eiji6', password: process.env.AUTH_PASSWORD || '' },
+  { name: 'eiji7', email: 'eiji7', password: process.env.AUTH_PASSWORD || '' },
 ];
 
 async function signIn(email, password, retries = 5) {
@@ -48,7 +49,7 @@ async function signIn(email, password, retries = 5) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${initialToken}`,
         },
-        body: JSON.stringify({ totp_key: '954900', generate_token: true }),
+        body: JSON.stringify({ totp_key: process.env.AUTH_2FA || '', generate_token: true }),
       });
 
       if (totpRes.status === 429) {

@@ -27,37 +27,8 @@ export interface UserCredentials {
   totp?: string;
 }
 
-export const defaultUsers: Record<string, UserCredentials> = {
-  eiji: {
-    email: 'eiji',
-    password: '0897421942@Earth',
-    totp: '954900',
-  },
-  eiji2: {
-    email: 'eiji2',
-    password: '0897421942@Earth',
-    totp: '954900',
-  },
-  eiji3: {
-    email: 'eiji3',
-    password: '0897421942@Earth',
-    totp: '954900',
-  },
-  eiji4: {
-    email: 'eiji4',
-    password: '0897421942@Earth',
-    totp: '954900',
-  },
-  admintest: {
-    email: 'admintest',
-    password: '0897421942@Earth',
-  },
-  superadmin: {
-    email: 'superadmin_eiji',
-    password: '0897421942@Earth',
-    totp: '954900',
-  },
-};
+// Test credentials come from environment variables only (see .env.example).
+// The previous hardcoded `defaultUsers` map was removed to avoid committing secrets.
 
 export function getApiBaseUrl(): string {
   return process.env.API_BASE_URL || environments.sit.apiBaseUrl;

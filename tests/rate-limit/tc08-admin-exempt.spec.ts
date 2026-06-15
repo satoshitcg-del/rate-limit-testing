@@ -14,13 +14,13 @@ test.describe('TC-08: ADMIN Exempt from Rate Limit', () => {
 
   const BO_CREDENTIALS = {
     email: process.env.BO_EMAIL || 'superadmin_eiji',
-    password: process.env.BO_PASSWORD || '0897421942@Earth',
-    totp: process.env.BO_2FA || '954900',
+    password: process.env.BO_PASSWORD || '',
+    totp: process.env.BO_2FA || '',
   };
 
   const CUSTOMER_CREDENTIALS = {
-    email: 'admin_eiji',
-    password: '0897421942@Earth',
+    email: process.env.CUSTOMER_EMAIL || 'admin_eiji',
+    password: process.env.CUSTOMER_PASSWORD || process.env.AUTH_PASSWORD || '',
   };
 
   let boToken: string;
@@ -37,7 +37,7 @@ test.describe('TC-08: ADMIN Exempt from Rate Limit', () => {
       }),
     });
     if (loginResponse.status === 200) {
-      const data = await loginResponse.json();
+      const data = await loginResponse.json() as any;
       boToken = data?.token || null;
     }
 
@@ -119,20 +119,23 @@ test.describe('TC-08: ADMIN Exempt from Rate Limit', () => {
       if (!customerRateLimited) console.log('Customer API: Not rate limited');
     }
 
-    if (boToken) {
-      let boRateLimited = false;
-      for (let i = 1; i <= 65; i++) {
-        const response = await fetch(`${BO_API_BASE}/v1/customer/search?page=1&limit=50`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${boToken}`, 'Content-Type': 'application/json' },
-        });
-        if (response.status === 429) {
-          console.log(`BO API: Rate limited at request ${i} - BUG!`);
-          boRateLimited = true;
-          break;
-        }
+    // ฝั่ง BO: invariant สำคัญ — SUPERADMIN ต้องได้รับยกเว้น ไม่โดน rate limit
+    test.skip(!boToken, 'ไม่ได้ BO token — ข้ามการตรวจ exempt (ไม่ใช่ pass)');
+
+    let boRateLimited = false;
+    let boLimitedAt = 0;
+    for (let i = 1; i <= 65; i++) {
+      const response = await fetch(`${BO_API_BASE}/v1/customer/search?page=1&limit=50`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${boToken}`, 'Content-Type': 'application/json' },
+      });
+      if (response.status === 429) {
+        boRateLimited = true;
+        boLimitedAt = i;
+        break;
       }
-      if (!boRateLimited) console.log('BO API: NOT rate limited - ✅');
     }
+    console.log(boRateLimited ? `BO API: Rate limited at request ${boLimitedAt} - BUG!` : 'BO API: NOT rate limited - ✅');
+    expect(boRateLimited, 'BO/SUPERADMIN ต้องได้รับยกเว้น ไม่ควรโดน rate limit (constraint ACC-1138)').toBe(false);
   });
 });

@@ -66,7 +66,7 @@ export function parseRateLimitHeaders(headers: Record<string, string>): {
     limit: headerMap['x_ratelimit_limit'] ? parseInt(headerMap['x_ratelimit_limit'], 10) : null,
     remaining: headerMap['x_ratelimit_remaining'] ? parseInt(headerMap['x_ratelimit_remaining'], 10) : null,
     reset: headerMap['x_ratelimit_reset'] ? parseInt(headerMap['x_ratelimit_reset'], 10) : null,
-    retry_after: headerMap['retry_after'] ? parseInt(headerMap['retry_after'], 10) : null,
+    retryAfter: headerMap['retry_after'] ? parseInt(headerMap['retry_after'], 10) : null,
   };
 }
 

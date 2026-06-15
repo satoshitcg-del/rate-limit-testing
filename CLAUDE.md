@@ -70,29 +70,29 @@ BO_API_BASE_URL=https://apixint-sit.askmebill.com
 
 # User A (eiji - main user for TC-01, TC-02, TC-05)
 AUTH_EMAIL=eiji
-AUTH_PASSWORD=0897421942@Earth
-AUTH_2FA=954900
+AUTH_PASSWORD=<your-password>
+AUTH_2FA=<your-totp-code>
 
 # User B (admintest - for TC-05, may have wrong credentials)
 AUTH_EMAIL_B=admintest
-AUTH_PASSWORD_B=0897421942@Earth
+AUTH_PASSWORD_B=<your-password>
 
 # Additional Users C-L (for TC-06 parallel testing)
-AUTH_EMAIL_C=eiji2    AUTH_PASSWORD_C=0897421942@Earth
-AUTH_EMAIL_D=eiji3    AUTH_PASSWORD_D=0897421942@Earth
-AUTH_EMAIL_E=eiji4    AUTH_PASSWORD_E=0897421942@Earth
-AUTH_EMAIL_F=eiji5    AUTH_PASSWORD_F=0897421942@Earth
-AUTH_EMAIL_G=eiji6    AUTH_PASSWORD_G=0897421942@Earth
-AUTH_EMAIL_H=eiji7    AUTH_PASSWORD_H=0897421942@Earth
-AUTH_EMAIL_I=eiji8    AUTH_PASSWORD_I=0897421942@Earth
-AUTH_EMAIL_J=eiji9    AUTH_PASSWORD_J=0897421942@Earth
-AUTH_EMAIL_K=eiji10   AUTH_PASSWORD_K=0897421942@Earth
-AUTH_EMAIL_L=eiji11   AUTH_PASSWORD_L=0897421942@Earth
+AUTH_EMAIL_C=eiji2    AUTH_PASSWORD_C=<your-password>
+AUTH_EMAIL_D=eiji3    AUTH_PASSWORD_D=<your-password>
+AUTH_EMAIL_E=eiji4    AUTH_PASSWORD_E=<your-password>
+AUTH_EMAIL_F=eiji5    AUTH_PASSWORD_F=<your-password>
+AUTH_EMAIL_G=eiji6    AUTH_PASSWORD_G=<your-password>
+AUTH_EMAIL_H=eiji7    AUTH_PASSWORD_H=<your-password>
+AUTH_EMAIL_I=eiji8    AUTH_PASSWORD_I=<your-password>
+AUTH_EMAIL_J=eiji9    AUTH_PASSWORD_J=<your-password>
+AUTH_EMAIL_K=eiji10   AUTH_PASSWORD_K=<your-password>
+AUTH_EMAIL_L=eiji11   AUTH_PASSWORD_L=<your-password>
 
 # BO Admin (for TC-08)
 BO_EMAIL=superadmin_eiji
-BO_PASSWORD=0897421942@Earth
-BO_2FA=954900
+BO_PASSWORD=<your-password>
+BO_2FA=<your-totp-code>
 ```
 
 ## Running Tests
