@@ -6,9 +6,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   testDir: './tests/rate-limit',
-  fullyParallel: true,
+  // Rate-limit tests share counters (same user / one machine IP) + time windows.
+  // They are inherently stateful → must run serially, else parallel runs contend and flake.
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
+  workers: 1,
   reporter: [['html'], ['list']],
   globalSetup: './global-setup.ts',
   use: {
@@ -25,7 +28,6 @@ export default defineConfig({
         '**/tc02-window-reset.spec.ts',
       ],
       use: { ...devices['Desktop Chrome'] },
-      workers: 1,
     },
     {
       name: 'chromium',
@@ -38,7 +40,6 @@ export default defineConfig({
         '**/tc10-*.spec.ts',
       ],
       use: { ...devices['Desktop Chrome'] },
-      workers: 12,  // 12 workers = 12 users พอดี (C-L)
     },
   ],
 });
