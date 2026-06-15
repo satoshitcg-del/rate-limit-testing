@@ -54,26 +54,6 @@ test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
     expect(analysis.rateLimitedAt).toBeLessThanOrEqual(13);
   });
 
-  test('TC-04-02: Payment verify rate limit ควรเป็น per user', async () => {
-    const token = await getFreshToken();
-    console.log(`\n=== TC-04-02: Per-User Rate Limit ===`);
-    console.log(`Login success: ${!!token}`);
-    test.skip(!token, 'ไม่ได้ token — ข้าม payment rate limit test (ไม่ใช่ pass)');
-
-    const result = await burstTest({
-      baseURL,
-      endpoint: '/v1/md/billing-note/payment/verify',
-      method: 'POST',
-      token,
-      burstSize: 12,
-      body: paymentBody,
-    });
-
-    const analysis = analyzeRateLimitResults(result);
-    console.log(`Rate limited: ${analysis.rateLimited}, at: ${analysis.rateLimitedAt || 'N/A'}`);
-
-    // payment tier = 10 req/min: burst 12 ต้องเกิด rate limit เสมอ
-    expect(analysis.rateLimited, 'payment verify ต้องโดน rate limit หลังเกิน 10 ครั้ง').toBe(true);
-    expect(analysis.rateLimitedAt).toBeLessThanOrEqual(13);
-  });
+  // TC-04-02 (per-user) removed: it bursted the SAME user as TC-04-01 (not per-user),
+  // duplicating it. Real per-user isolation is covered by tc05-user-isolation.spec.ts.
 });

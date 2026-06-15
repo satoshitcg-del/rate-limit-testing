@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { burstTest } from '../helpers/rate-limit-analyzer';
+import { burstTest, ipBlocked } from '../helpers/rate-limit-analyzer';
 import { getApiBaseUrl } from '../../config/env';
 import { authClient } from '../../api/auth.client';
 
@@ -25,18 +25,6 @@ test.describe('TC-01: Sign-in Rate Limit (Strict Tier)', () => {
     return rateLimitedAt;
   }
 
-  async function skipIfIpBlocked(results: any[]): Promise<boolean> {
-    const statusCodes = results.map(r => r.statusCode);
-    const has400s = statusCodes.some(s => s === 400);
-    const has429s = statusCodes.some(s => s === 429);
-
-    if (has400s && !has429s) {
-      console.log('⚠️ IP is blocked (10019) - cannot verify rate limit');
-      return true;
-    }
-    return false;
-  }
-
   test('TC-01-01: Sign-in endpoint ควรถูก rate limit หลังจาก 5 ครั้ง', async () => {
     const results = await burstTest({
       baseURL,
@@ -47,7 +35,7 @@ test.describe('TC-01: Sign-in Rate Limit (Strict Tier)', () => {
     });
 
     console.log('\n=== TC-01-01: Sign-in Rate Limit ===');
-    if (await skipIfIpBlocked(results)) return;
+    test.skip(ipBlocked(results), 'IP ถูกบล็อก (10019) — ตรวจ rate limit ไม่ได้ (ไม่ใช่ pass)');
 
     const rateLimitedAt = await checkRateLimitTriggered(results);
     expect(rateLimitedAt).toBeGreaterThan(0);
@@ -63,14 +51,13 @@ test.describe('TC-01: Sign-in Rate Limit (Strict Tier)', () => {
     });
 
     console.log('\n=== TC-01-02: Rate Limit Response Headers ===');
-    if (await skipIfIpBlocked(results)) return;
+    test.skip(ipBlocked(results), 'IP ถูกบล็อก (10019) — ตรวจ rate limit ไม่ได้ (ไม่ใช่ pass)');
 
     const rateLimitedResponse = results.find(r => r.isRateLimited);
-    if (rateLimitedResponse) {
-      console.log(`Status: ${rateLimitedResponse.statusCode}`);
-      console.log(`Rate Limit Headers:`, rateLimitedResponse.rateLimit);
-      expect(rateLimitedResponse.statusCode).toBe(429);
-    }
+    expect(rateLimitedResponse, 'ต้องเกิด 429 ภายใน burst').toBeDefined();
+    console.log(`Status: ${rateLimitedResponse!.statusCode}`);
+    console.log(`Rate Limit Headers:`, rateLimitedResponse!.rateLimit);
+    expect(rateLimitedResponse!.statusCode).toBe(429);
   });
 
   test('TC-01-03: Verify endpoint ควรถูก rate limit เช่นกัน', async () => {
@@ -87,7 +74,7 @@ test.describe('TC-01: Sign-in Rate Limit (Strict Tier)', () => {
     });
 
     console.log('\n=== TC-01-03: Verify Endpoint Rate Limit ===');
-    if (await skipIfIpBlocked(results)) return;
+    test.skip(ipBlocked(results), 'IP ถูกบล็อก (10019) — ตรวจ rate limit ไม่ได้ (ไม่ใช่ pass)');
 
     const rateLimitedAt = await checkRateLimitTriggered(results);
     expect(rateLimitedAt).toBeGreaterThan(0);
@@ -104,10 +91,7 @@ test.describe('TC-01: Sign-in Rate Limit (Strict Tier)', () => {
 
     console.log('\n=== TC-01-04: TOTP Verify Endpoint Rate Limit ===');
     console.log(`Token obtained: ${token ? 'Yes' : 'No'}`);
-    if (!token) {
-      console.log('⚠️ Could not obtain token - skipping test');
-      return;
-    }
+    test.skip(!token, 'ไม่ได้ token — ข้าม (ไม่ใช่ pass)');
 
     const results = await burstTest({
       baseURL,
