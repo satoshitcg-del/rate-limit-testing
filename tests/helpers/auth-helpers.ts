@@ -114,14 +114,13 @@ async function fetchTokenWithRetry(email: string, password: string, totp: string
     return fetchTokenWithRetry(email, password, totp, attempt + 1);
   }
 
-  // Check if TOTP credential error
-  if (!totpResp?.data?.token && totpResp?.code !== 10027) {
-    console.warn(`[DEBUG] TOTP error for ${email}: ${totpResp?.message} - skipping`);
+  // Require a post-2FA token. Never fall back to the pre-2FA sign-in token — APIs reject it
+  // with 401, which masquerades as a test failure (token is truthy, so skip-guards pass).
+  if (!totpResp?.data?.token) {
+    console.warn(`[DEBUG] TOTP did not return a token for ${email} (code ${totpResp?.code}) - skipping`);
     return undefined;
   }
-
-  const finalToken = totpResp?.data?.token || token;
-  return finalToken;
+  return totpResp.data.token;
 }
 
 /**

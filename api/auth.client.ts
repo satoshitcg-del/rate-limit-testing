@@ -122,7 +122,9 @@ export class AuthClient {
 
     if (credentials.totp) {
       const totpResp = await this.verifyTotp(token, credentials.totp);
-      return totpResp?.data?.token || token;
+      // Require a post-2FA token. Never fall back to the pre-2FA sign-in token — APIs reject
+      // it with 401, which masquerades as a test failure (it is truthy, so skip-guards pass).
+      return totpResp?.data?.token ?? null;
     }
 
     return token;
