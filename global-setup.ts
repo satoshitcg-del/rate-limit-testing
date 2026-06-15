@@ -91,7 +91,7 @@ async function globalSetup() {
   if (fs.existsSync(CACHE_FILE)) {
     try {
       const cache: TokenCache = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
-      if (Date.now() < cache.expiresAt - 1800000) { // 30 min buffer
+      if (Date.now() < cache.expiresAt - 3300000) { // reuse only if <5 min old — SIT JWT can expire before the assumed 1h, stale cache → 401
         console.log('[globalSetup] Using existing token cache (still fresh)');
         return;
       }
@@ -109,7 +109,7 @@ async function globalSetup() {
     if (fs.existsSync(CACHE_FILE)) {
       try {
         const cache: TokenCache = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
-        if (Date.now() < cache.expiresAt - 1800000) {
+        if (Date.now() < cache.expiresAt - 3300000) {
           console.log('[globalSetup] Cache was just created by another worker');
           return;
         }
