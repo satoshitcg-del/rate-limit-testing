@@ -2,7 +2,7 @@ import 'dotenv/config';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-import { getFreshToken, clearIpRateLimit } from './tests/helpers/rate-limit-analyzer.js';
+import { getFreshToken, clearIpRateLimit, jwtExpiryMs } from './tests/helpers/rate-limit-analyzer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CACHE_FILE = path.join(__dirname, 'tests', 'helpers', 'token-cache.json');
@@ -156,10 +156,13 @@ async function globalSetup() {
       }
     }
 
-    // Save to file
+    // Save to file — honest expiry = earliest real JWT exp (fallback 10min if undecodable)
+    const expiries = Object.values(tokens)
+      .map(jwtExpiryMs)
+      .filter((x): x is number => x !== null);
     const cacheData: TokenCache = {
       tokens,
-      expiresAt: Date.now() + 3600000, // 1 hour
+      expiresAt: expiries.length > 0 ? Math.min(...expiries) : Date.now() + 600000,
     };
     fs.writeFileSync(CACHE_FILE, JSON.stringify(cacheData, null, 2));
     console.log(`[globalSetup] Token cache saved (${Object.keys(tokens).length} tokens)`);

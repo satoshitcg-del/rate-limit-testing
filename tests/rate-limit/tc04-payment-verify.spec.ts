@@ -1,14 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { burstTest, analyzeRateLimitResults } from '../helpers/rate-limit-analyzer';
+import { burstTest, analyzeRateLimitResults, getFreshToken } from '../helpers/rate-limit-analyzer';
 import { getApiBaseUrl } from '../../config/env';
-import { authClient } from '../../api/auth.client';
 
 /**
  * TC-04: ทดสอบ Rate Limit ของ Payment Verify (Payment Tier)
  *
- * Endpoint: POST /v1/md/billing-note/payment/verify
- * จำกัด: 10 ครั้ง/นาที
- * Key: userID
+ * Endpoint: POST /v1/md/billing-note/payment/verify — 10 req/min, key = userID.
+ *
+ * ใช้ getFreshToken (cache-aware) — eiji ถูก pre-fetch ใน global-setup จึงไม่ต้อง login สด
+ * หลัง TC-01 (ที่เพิ่งเผา IP strict-tier limit) → เลี่ยง skip จาก IP block. (เดิม login สด
+ * inline + fallback pre-2FA token → ทั้ง skip และเสี่ยง 401.)
  */
 
 test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
@@ -22,16 +23,8 @@ test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
 
   const paymentBody = { invoice_id: '69e6760f466b99885541692c', amount: 100 };
 
-  async function getFreshToken(): Promise<string | undefined> {
-    const signInData = await authClient.signIn({ email: credentials.email, password: credentials.password });
-    const token = signInData?.data?.token;
-    if (!token) return undefined;
-    const totpResp = await authClient.verifyTotp(token, credentials.totp, true);
-    return totpResp?.data?.token || token;
-  }
-
   test('TC-04-01: Payment verify ควรถูก rate limit หลัง 10 ครั้ง', async () => {
-    const token = await getFreshToken();
+    const token = await getFreshToken(credentials.email, credentials.password, credentials.totp);
     console.log(`\n=== TC-04-01: Payment Verify Rate Limit ===`);
     console.log(`Login success: ${!!token}`);
     test.skip(!token, 'ไม่ได้ token — ข้าม payment rate limit test (ไม่ใช่ pass)');
@@ -53,7 +46,4 @@ test.describe('TC-04: Payment Verify Rate Limit (Payment Tier)', () => {
     // ควร trigger ~ครั้งที่ 11; เผื่อ timing variance ถึง 13
     expect(analysis.rateLimitedAt).toBeLessThanOrEqual(13);
   });
-
-  // TC-04-02 (per-user) removed: it bursted the SAME user as TC-04-01 (not per-user),
-  // duplicating it. Real per-user isolation is covered by tc05-user-isolation.spec.ts.
 });

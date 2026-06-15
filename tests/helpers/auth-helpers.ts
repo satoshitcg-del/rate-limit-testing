@@ -16,6 +16,30 @@ import { authClient } from '../../api/auth.client';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
+ * Real token expiry (ms epoch) from the JWT `exp` claim.
+ *
+ * The backend issues `exp` as a STRING in NANOSECONDS (e.g. "1781561374947766314").
+ * We used to fabricate `expiresAt = now + 1h`, which LIED — the JWT often died ~30 min
+ * earlier, and both cache layers then served a dead token → 401 in late specs. Decode
+ * the real exp instead. Returns null if unparseable (caller uses a short fallback).
+ */
+export function jwtExpiryMs(token: string): number | null {
+  try {
+    const seg = token.split('.')[1];
+    if (!seg) return null;
+    const payload = JSON.parse(Buffer.from(seg, 'base64url').toString('utf-8'));
+    if (payload.exp == null) return null;
+    const raw = BigInt(payload.exp);
+    // normalize to ms: backend uses ns (≈1e18); handle s/ms defensively too
+    if (raw > 1_000_000_000_000_000n) return Number(raw / 1_000_000n); // ns → ms
+    if (raw > 1_000_000_000_000n) return Number(raw); // already ms
+    return Number(raw) * 1000; // s → ms
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Token cache per worker (in-memory)
  * Key: email, Value: { token, refreshToken, expiresAt }
  */
@@ -29,10 +53,21 @@ function loadFileCache(): Record<string, string> {
     const cacheFile = path.join(__dirname, 'token-cache.json');
     if (fs.existsSync(cacheFile)) {
       const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
-      if (Date.now() < cache.expiresAt - 60000) { // 1 min buffer
-        console.log('[DEBUG] Loaded tokens from file cache');
-        return cache.tokens || {};
+      const tokens: Record<string, string> = cache.tokens || {};
+      // Validate each token's REAL exp — the file's `expiresAt` was historically
+      // fabricated (now+1h), so trust the JWT, not the field. Keep only tokens with
+      // > 1 min left; expired ones are dropped so the caller re-fetches.
+      const now = Date.now();
+      const fresh: Record<string, string> = {};
+      for (const [email, tok] of Object.entries(tokens)) {
+        const exp = jwtExpiryMs(tok);
+        if (exp && exp > now + 60000) fresh[email] = tok;
       }
+      if (Object.keys(fresh).length > 0) {
+        console.log(`[DEBUG] Loaded ${Object.keys(fresh).length} fresh token(s) from file cache`);
+        return fresh;
+      }
+      console.log('[DEBUG] File cache tokens expired — ignoring');
     }
   } catch (e) {
     // Ignore errors
@@ -58,7 +93,7 @@ export async function getFreshToken(email: string, password: string, totp: strin
   const fileTokens = loadFileCache();
   if (fileTokens[email]) {
     console.log(`[DEBUG] Reusing file cached token for: ${email}`);
-    tokenCache.set(email, { token: fileTokens[email], expiresAt: now + 3600000 });
+    tokenCache.set(email, { token: fileTokens[email], expiresAt: jwtExpiryMs(fileTokens[email]) ?? now + 600000 });
     return fileTokens[email];
   }
 
@@ -68,9 +103,8 @@ export async function getFreshToken(email: string, password: string, totp: strin
   const token = await fetchTokenWithRetry(email, password, totp);
   if (!token) return undefined;
 
-  // Cache it
-  const expiresIn = 3600000; // 1 hour
-  tokenCache.set(email, { token, expiresAt: now + expiresIn });
+  // Cache it with the token's REAL expiry (honest — see jwtExpiryMs)
+  tokenCache.set(email, { token, expiresAt: jwtExpiryMs(token) ?? now + 600000 });
   console.log(`[DEBUG] Cached new token for: ${email}`);
 
   return token;

@@ -12,9 +12,11 @@ import { getApiBaseUrl } from '../../config/env';
 test.describe('TC-07: Response Format when Rate Limited', () => {
   const baseURL = getApiBaseUrl();
 
+  // Wrong password on purpose — see tc01: rate limit counts by IP pre-auth, and a real
+  // eiji login here would rotate the single-session token that tc04/tc10 reuse.
   const credentials = {
     email: process.env.AUTH_EMAIL || 'eiji',
-    password: process.env.AUTH_PASSWORD || '',
+    password: 'ratelimit-probe-invalid-pw',
   };
 
   test('TC-07-02: 429 body ต้องมี code = 10027', async () => {
