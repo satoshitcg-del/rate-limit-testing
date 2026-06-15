@@ -1,142 +1,88 @@
 import { test, expect } from '@playwright/test';
-import { burstTest } from '../helpers/rate-limit-analyzer';
+import { burstTest, clearRateLimitForUser } from '../helpers/rate-limit-analyzer';
 import { getApiBaseUrl } from '../../config/env';
 import { authClient } from '../../api/auth.client';
 
 /**
- * TC-05: ทดสอบ User Isolation
+ * TC-05: User Isolation
  *
- * พฤติกรรมที่คาดหวัง:
- * - Rate limits จะถูก track ต่อ userID (ไม่ใช่ IP สำหรับ payment/standard tiers)
- * - User A โดน rate limit ไม่ควรกระทบ User B
- * - แต่ละ user มี counter แยกกัน
+ * payment/standard tiers are keyed by userID → User A getting rate limited must NOT
+ * affect User B (separate counters).
+ *
+ * Design notes:
+ * - Login once in `beforeAll` (shared across both tests) — avoids re-paying the 65s
+ *   IP-window wait per test.
+ * - Reset state between tests with `clearRateLimitForUser` (instant) instead of sleeping
+ *   65s for the window to reset — faster AND deterministic.
  */
 
 const baseURL = getApiBaseUrl();
+const PAYMENT = '/v1/md/billing-note/payment/verify';
+const paymentBody = { invoice_id: '69e6760f466b99885541692c', amount: 100 };
 
-const userA = {
-  email: process.env.AUTH_EMAIL || 'eiji',
-  password: process.env.AUTH_PASSWORD || '',
-  totp: process.env.AUTH_2FA || '',
-};
-
-const userB = {
-  email: process.env.AUTH_EMAIL_B || 'admintest',
-  password: process.env.AUTH_PASSWORD_B || '',
-  totp: process.env.AUTH_2FA || '',
-};
+const userA = { email: process.env.AUTH_EMAIL || 'eiji', password: process.env.AUTH_PASSWORD || '', totp: process.env.AUTH_2FA || '' };
+const userB = { email: process.env.AUTH_EMAIL_B || 'admintest', password: process.env.AUTH_PASSWORD_B || '', totp: process.env.AUTH_2FA || '' };
 
 test.describe('TC-05: User Isolation', () => {
+  test.describe.configure({ mode: 'serial' });
   test.setTimeout(300000);
 
-  test('TC-05-01: User A และ User B ควรมี rate limit counter แยกกัน', async () => {
-    console.log('\n=== TC-05-01: Separate Rate Limit Counters ===');
+  let userAToken: string | undefined;
+  let userBToken: string | undefined;
 
-    // Sign in user A
-    const userAToken = await authClient.getTokenWithTotp(userA);
+  test.beforeAll(async () => {
+    userAToken = await authClient.getTokenWithTotp(userA);
     console.log(`[DEBUG] userA token: ${userAToken ? 'OK' : 'FAILED'}`);
-    if (!userAToken) {
-      test.skip(true, 'ไม่ได้ token User A — ข้าม (ไม่ใช่ pass)');
-      return;
+    // wait 65s before userB sign-in to avoid the strict (IP) sign-in limit
+    if (userAToken) {
+      console.log('[DEBUG] Waiting 65s before userB sign-in to avoid IP rate limit...');
+      await new Promise((r) => setTimeout(r, 65000));
     }
-
-    // Sign in user B (wait 65s to avoid strict rate limit)
-    console.log('[DEBUG] Waiting 65s before userB sign-in to avoid rate limit...');
-    await new Promise(r => setTimeout(r, 65000));
-
-    const userBToken = await authClient.getTokenWithTotp(userB);
+    userBToken = await authClient.getTokenWithTotp(userB);
     console.log(`[DEBUG] userB token: ${userBToken ? 'OK' : 'FAILED'}`);
+  });
 
-    console.log('User A: Hitting payment verify rate limit...');
-    const userAResults = await burstTest({
-      baseURL,
-      endpoint: '/v1/md/billing-note/payment/verify',
-      method: 'POST',
-      token: userAToken,
-      body: { invoice_id: '69e6760f466b99885541692c', amount: 100 },
-      burstSize: 15,
-    });
+  test('TC-05-01: User A และ User B ควรมี rate limit counter แยกกัน', async () => {
+    test.skip(!userAToken, 'ไม่ได้ token User A — ข้าม (ไม่ใช่ pass)');
+    // หมายเหตุ: userB = admintest ซึ่ง creds มักผิด — แนะนำตั้ง AUTH_EMAIL_B เป็น account จริง
+    test.skip(!userBToken, 'ไม่ได้ token User B (admintest creds?) — ข้าม (ไม่ใช่ pass)');
 
-    const userARateLimitedAt = userAResults.find(r => r.isRateLimited)?.requestCount;
-    console.log(`User A rate limited at request #${userARateLimitedAt || 'not triggered'}`);
+    // baseline สะอาดทั้งคู่
+    await clearRateLimitForUser(userA.email);
+    await clearRateLimitForUser(userB.email);
 
-    // หมายเหตุ: userB = admintest ซึ่ง global-setup ระบุว่า creds มักผิด
-    // แนะนำเปลี่ยน AUTH_EMAIL_B เป็น account ที่ login ได้จริง เพื่อให้เทสต์นี้รันจริง
-    if (!userBToken) {
-      test.skip(true, 'ไม่ได้ token User B (admintest creds?) — ข้าม (ไม่ใช่ pass)');
-      return;
-    }
+    const userAResults = await burstTest({ baseURL, endpoint: PAYMENT, method: 'POST', token: userAToken!, body: paymentBody, burstSize: 15 });
+    const userARateLimitedAt = userAResults.find((r) => r.isRateLimited)?.requestCount;
+    console.log(`User A rate limited at #${userARateLimitedAt || 'not triggered'}`);
 
-    console.log('User B: Sending requests...');
-    const userBResults = await burstTest({
-      baseURL,
-      endpoint: '/v1/md/billing-note/payment/verify',
-      method: 'POST',
-      token: userBToken,
-      body: { invoice_id: '69e6760f466b99885541692c', amount: 100 },
-      burstSize: 15,
-    });
-
-    const userBRateLimitedAt = userBResults.find(r => r.isRateLimited)?.requestCount;
-    console.log(`User B rate limited at request #${userBRateLimitedAt || 'not triggered'}`);
+    const userBResults = await burstTest({ baseURL, endpoint: PAYMENT, method: 'POST', token: userBToken!, body: paymentBody, burstSize: 15 });
+    const userBRateLimitedAt = userBResults.find((r) => r.isRateLimited)?.requestCount;
+    console.log(`User B rate limited at #${userBRateLimitedAt || 'not triggered'}`);
 
     expect(userARateLimitedAt, 'User A payment ต้องโดน rate limit').toBeLessThanOrEqual(12);
     expect(userBRateLimitedAt, 'User B payment ต้องโดน rate limit (counter แยกราย user)').toBeLessThanOrEqual(12);
   });
 
   test('TC-05-02: User B ไม่ควรโดน block เมื่อ User A โดน rate limit', async () => {
-    console.log('\n=== TC-05-02: User B Isolation ===');
+    test.skip(!userAToken, 'ไม่ได้ token User A — ข้าม (ไม่ใช่ pass)');
+    test.skip(!userBToken, 'ไม่ได้ token User B (admintest creds?) — ข้าม (ไม่ใช่ pass)');
 
-    // Sign in user A
-    const userAToken = await authClient.getTokenWithTotp(userA);
-    console.log(`[DEBUG] userA token: ${userAToken ? 'OK' : 'FAILED'}`);
-    if (!userAToken) {
-      test.skip(true, 'ไม่ได้ token User A — ข้าม (ไม่ใช่ pass)');
-      return;
-    }
+    // reset ทั้งคู่จาก test ก่อนหน้า → A เริ่มสด, B เริ่มสด
+    await clearRateLimitForUser(userA.email);
+    await clearRateLimitForUser(userB.email);
 
-    // Sign in user B (wait 65s to avoid strict rate limit)
-    console.log('[DEBUG] Waiting 65s before userB sign-in to avoid rate limit...');
-    await new Promise(r => setTimeout(r, 65000));
-
-    const userBToken = await authClient.getTokenWithTotp(userB);
-    console.log(`[DEBUG] userB token: ${userBToken ? 'OK' : 'FAILED'}`);
-
-    console.log('User A: Hitting payment verify rate limit...');
-    await burstTest({
-      baseURL,
-      endpoint: '/v1/md/billing-note/payment/verify',
-      method: 'POST',
-      token: userAToken,
-      body: { invoice_id: '69e6760f466b99885541692c', amount: 100 },
-      burstSize: 12,
-    });
-
+    // ทำให้ User A โดน limit
+    await burstTest({ baseURL, endpoint: PAYMENT, method: 'POST', token: userAToken!, body: paymentBody, burstSize: 12 });
     console.log('User A blocked. User B sending requests...');
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((r) => setTimeout(r, 1000));
 
-    // หมายเหตุ: userB = admintest (creds มักผิดตาม global-setup) — แนะนำเปลี่ยนเป็น account จริง
-    if (!userBToken) {
-      test.skip(true, 'ไม่ได้ token User B (admintest creds?) — ข้าม (ไม่ใช่ pass)');
-      return;
-    }
+    const userBResults = await burstTest({ baseURL, endpoint: PAYMENT, method: 'POST', token: userBToken!, body: paymentBody, burstSize: 5 });
+    const userBRateLimitedCount = userBResults.filter((r) => r.statusCode === 429).length;
+    const userB400 = userBResults.filter((r) => r.statusCode === 400).length;
+    const userB200 = userBResults.filter((r) => r.statusCode === 200).length;
+    console.log(`User B: ${userB200} ok, ${userB400} got 400, ${userBRateLimitedCount} got 429`);
 
-    const userBResults = await burstTest({
-      baseURL,
-      endpoint: '/v1/md/billing-note/payment/verify',
-      method: 'POST',
-      token: userBToken,
-      body: { invoice_id: '69e6760f466b99885541692c', amount: 100 },
-      burstSize: 5,
-    });
-
-    const userBUnauthorizedCount = userBResults.filter(r => r.statusCode === 400).length;
-    const userBRateLimitedCount = userBResults.filter(r => r.statusCode === 429).length;
-    const userBOkCount = userBResults.filter(r => r.statusCode === 200).length;
-    console.log(`User B first ${userBResults.length} requests: ${userBOkCount} succeeded, ${userBUnauthorizedCount} got 400 (expected for wrong user invoice), ${userBRateLimitedCount} got 429`);
-
-    // User B should NOT be rate limited (429) — if they get 400, it means they hit the endpoint but
-    // with wrong invoice data (not their invoice). 400 proves they bypassed User A's rate limit.
-    expect(userBRateLimitedCount).toBe(0);
+    // User B ต้องไม่โดน 429 (counter แยกจาก A); 400 = ยิงถึง endpoint แต่ invoice ไม่ใช่ของตัว → ผ่าน limit ของ A
+    expect(userBRateLimitedCount, 'User B ไม่ควรโดน 429 (counter แยกจาก A)').toBe(0);
   });
 });

@@ -42,8 +42,7 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 │   ├── helpers/                 # สิ่งที่ spec เรียก (แยกตามหน้าที่)
 │   │   ├── burst.ts             # burstTest, analyzeRateLimitResults, ipBlocked
 │   │   ├── auth-helpers.ts      # getFreshToken, clearRateLimitForUser, refreshAccessToken
-│   │   ├── test-users.ts        # TC06_USERS (test data)
-│   │   └── rate-limit-analyzer.ts # index — re-export 3 ไฟล์บน (import เดิมยังใช้ได้)
+│   │   └── rate-limit-analyzer.ts # index — re-export 2 ไฟล์บน (import เดิมยังใช้ได้)
 │   └── rate-limit/
 │       ├── tc01-auth-signin.spec.ts      # TC-01
 │       ├── tc02-window-reset.spec.ts     # TC-02
@@ -74,7 +73,7 @@ expect()                 assert
 
 **Layer:**
 - `tests/rate-limit/*.spec.ts` — scenario + assertions (อ่านไฟล์เดียวจบ 1 เคส)
-- `tests/helpers/` — `burst` (ยิง+วิเคราะห์) · `auth-helpers` (token + เคลียร์ state) · `test-users` (data)
+- `tests/helpers/` — `burst` (ยิง+วิเคราะห์) · `auth-helpers` (token + เคลียร์ state)
 - `api/auth.client.ts` — เรียก endpoint จริง (AuthClient)
 - `config/env.ts` — base URL + env (SIT)
 

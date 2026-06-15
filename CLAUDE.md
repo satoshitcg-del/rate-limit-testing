@@ -29,8 +29,7 @@ project/
 │   └── helpers/                          # split by job
 │       ├── burst.ts                      # burstTest, analyzeRateLimitResults, ipBlocked
 │       ├── auth-helpers.ts               # getFreshToken, clearRateLimitForUser, refreshAccessToken
-│       ├── test-users.ts                 # TC06_USERS
-│       └── rate-limit-analyzer.ts        # index — re-exports the 3 above
+│       └── rate-limit-analyzer.ts        # index — re-exports the 2 above
 ├── global-setup.ts         # Token cache pre-fetch (65s delay between users)
 ├── .env                    # Environment variables (git ignored)
 ├── .env.example            # Template for env variables

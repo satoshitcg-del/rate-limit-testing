@@ -1,96 +1,60 @@
 import { test, expect } from '@playwright/test';
-import { burstTest, analyzeRateLimitResults, TC06_USERS, getFreshToken, clearRateLimitForUser } from '../helpers/rate-limit-analyzer';
+import { burstTest, analyzeRateLimitResults, getFreshToken, clearRateLimitForUser } from '../helpers/rate-limit-analyzer';
 import { getApiBaseUrl } from '../../config/env';
+
+/**
+ * TC-06: Standard Routes Rate Limit (60 req/min, key = userID)
+ *
+ * Trimmed from 30 tests (10 users × 3 endpoints) to a focused set. Rationale:
+ *   - the standard-tier middleware is path-pattern based — same logic for every CUSTOMER
+ *     route (ACC-1138) — so a couple of representative routes prove it; no need for 24.
+ *   - per-user isolation is already covered by tc05; clear-resets by tc10.
+ * → ONE user + 2 routes is enough. Serial (shared per-user counter + 60s window).
+ */
 
 const baseURL = getApiBaseUrl();
 
-/**
- * Get an "other" endpoint with the same path prefix for shared counter testing
- */
-function getOtherEndpoint(userEndpoints: string[], currentEndpoint: string): string {
-  // Find an endpoint in the same user's list that has the same path prefix
-  const currentPrefix = currentEndpoint.split('/').slice(0, 5).join('/') + '/';
+const USER = {
+  email: process.env.AUTH_EMAIL_C || 'eiji2',
+  password: process.env.AUTH_PASSWORD_C || '',
+  totp: process.env.AUTH_2FA || '',
+};
 
-  for (const ep of userEndpoints) {
-    if (ep !== currentEndpoint) {
-      const epPrefix = ep.split('/').slice(0, 5).join('/') + '/';
-      if (epPrefix === currentPrefix) {
-        return ep;
-      }
-    }
-  }
-
-  // Fallback: return first endpoint in list (same prefix)
-  return userEndpoints.find(e => e !== currentEndpoint) || currentEndpoint;
-}
+// Two distinct CUSTOMER routes — to prove the counter is shared ACROSS routes per user.
+const ROUTE_A = '/v1/md/user/profile';
+const ROUTE_B = '/v1/md/customer/sub-accounts?page=1&limit=25';
 
 test.describe('TC-06: Standard Routes Rate Limit (60 req/min)', () => {
-  for (const user of TC06_USERS) {
-    test.describe(`${user.name} - ${user.email}`, () => {
-      for (let i = 0; i < user.endpoints.length; i++) {
-        const endpoint = user.endpoints[i];
-        test(`TC-06: ${endpoint}`, async () => {
-          test.setTimeout(300000);
-          const OTHER_ENDPOINT = getOtherEndpoint(user.endpoints, endpoint);
-          console.log(`\n========== Testing: ${endpoint} (${user.name}) ==========`);
-          console.log(`[DEBUG] Other endpoint for shared counter: ${OTHER_ENDPOINT}`);
+  test.describe.configure({ mode: 'serial' });
+  test.setTimeout(300000);
 
-          const token = await getFreshToken(user.email, user.password, user.totp);
-          test.skip(!token, `ไม่ได้ token ${user.email} — ข้าม (ไม่ใช่ pass)`);
-          console.log(`[DEBUG] Token obtained: ${!!token}`);
+  test('TC-06-01: standard route ต้องโดน 429 หลังเกิน 60/min', async () => {
+    const token = await getFreshToken(USER.email, USER.password, USER.totp);
+    test.skip(!token, `ไม่ได้ token ${USER.email} — ข้าม (ไม่ใช่ pass)`);
 
-          await clearRateLimitForUser(user.email);
+    await clearRateLimitForUser(USER.email);
+    const analysis = analyzeRateLimitResults(
+      await burstTest({ baseURL, endpoint: ROUTE_A, method: 'GET', token: token!, burstSize: 80 }),
+    );
+    console.log(`Rate limited at #${analysis.rateLimitedAt ?? 'N/A'}`);
+    expect(analysis.rateLimited, 'standard route ต้องโดน 429 ภายใน 80 req').toBe(true);
+  });
 
-          const initialResult = await burstTest({
-            baseURL,
-            endpoint,
-            method: 'GET',
-            token,
-            burstSize: 5,
-          });
+  test('TC-06-02: counter แชร์ข้าม route (ราย userID)', async () => {
+    const token = await getFreshToken(USER.email, USER.password, USER.totp);
+    test.skip(!token, `ไม่ได้ token ${USER.email} — ข้าม (ไม่ใช่ pass)`);
 
-          const canHitBefore = initialResult.some(r => r.statusCode === 200);
-          console.log(`Can hit before: ${canHitBefore ? '✅' : '❌'}`);
+    await clearRateLimitForUser(USER.email);
+    // ยิง route A จนโดน limit
+    const a = analyzeRateLimitResults(
+      await burstTest({ baseURL, endpoint: ROUTE_A, method: 'GET', token: token!, burstSize: 80 }),
+    );
+    expect(a.rateLimited, 'route A ต้องโดน limit ก่อน').toBe(true);
 
-          const burstResult = await burstTest({
-            baseURL,
-            endpoint,
-            method: 'GET',
-            token,
-            burstSize: 80, // > 60/min standard limit (was 200 — wasteful)
-          });
-
-          const analysis = analyzeRateLimitResults(burstResult);
-          console.log(`Rate limited: ${analysis.rateLimited ? '✅' : '❌'}, at: ${analysis.rateLimitedAt || 'N/A'}`);
-
-          const sameResult = await burstTest({
-            baseURL,
-            endpoint,
-            method: 'GET',
-            token,
-            burstSize: 3,
-          });
-
-          const canHitAfter = sameResult.some(r => r.statusCode === 200);
-          console.log(`Same blocked: ${!canHitAfter ? '✅' : '❌'}`);
-
-          const otherResult = await burstTest({
-            baseURL,
-            endpoint: OTHER_ENDPOINT,
-            method: 'GET',
-            token,
-            burstSize: 3,
-          });
-
-          console.log(`[DEBUG] Other endpoint results:`, otherResult.map(r => r.statusCode));
-          const otherHas429 = otherResult.some(r => r.statusCode === 429);
-          console.log(`Other blocked: ${otherHas429 ? '✅' : '❌'}`);
-
-          expect(canHitBefore).toBe(true);
-          expect(analysis.rateLimited).toBe(true);
-          expect(otherHas429).toBe(true);
-        });
-      }
-    });
-  }
+    // route B (คนละ route, user เดิม) ต้องโดน 429 ด้วย → counter แชร์ข้าม route
+    const b = await burstTest({ baseURL, endpoint: ROUTE_B, method: 'GET', token: token!, burstSize: 3 });
+    const bBlocked = b.some((r) => r.statusCode === 429);
+    console.log(`route B blocked (shared counter): ${bBlocked}`);
+    expect(bBlocked, 'route B ต้องโดน 429 ด้วย (counter แชร์ข้าม route ราย user)').toBe(true);
+  });
 });

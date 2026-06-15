@@ -59,18 +59,10 @@ function getUsersFromEnv(): UserConfig[] {
   // 1. It has wrong credentials in .env
   // 2. TC-05 and TC-08 call authClient.getTokenWithTotp() directly
 
-  // Additional users C-L (used in TC-06)
+  // User C (eiji2) — used by TC-06 + TC-10. Users D-L existed only for the old 10-user
+  // TC-06 loop (now trimmed to one user) → no longer pre-fetched, saving ~9×65s of setup.
   const additionalUsers: Array<{ key: string; email: string; password: string } | null> = [
     process.env.AUTH_EMAIL_C ? { key: 'User C', email: process.env.AUTH_EMAIL_C, password: process.env.AUTH_PASSWORD_C || '' } : null,
-    process.env.AUTH_EMAIL_D ? { key: 'User D', email: process.env.AUTH_EMAIL_D, password: process.env.AUTH_PASSWORD_D || '' } : null,
-    process.env.AUTH_EMAIL_E ? { key: 'User E', email: process.env.AUTH_EMAIL_E, password: process.env.AUTH_PASSWORD_E || '' } : null,
-    process.env.AUTH_EMAIL_F ? { key: 'User F', email: process.env.AUTH_EMAIL_F, password: process.env.AUTH_PASSWORD_F || '' } : null,
-    process.env.AUTH_EMAIL_G ? { key: 'User G', email: process.env.AUTH_EMAIL_G, password: process.env.AUTH_PASSWORD_G || '' } : null,
-    process.env.AUTH_EMAIL_H ? { key: 'User H', email: process.env.AUTH_EMAIL_H, password: process.env.AUTH_PASSWORD_H || '' } : null,
-    process.env.AUTH_EMAIL_I ? { key: 'User I', email: process.env.AUTH_EMAIL_I, password: process.env.AUTH_PASSWORD_I || '' } : null,
-    process.env.AUTH_EMAIL_J ? { key: 'User J', email: process.env.AUTH_EMAIL_J, password: process.env.AUTH_PASSWORD_J || '' } : null,
-    process.env.AUTH_EMAIL_K ? { key: 'User K', email: process.env.AUTH_EMAIL_K, password: process.env.AUTH_PASSWORD_K || '' } : null,
-    process.env.AUTH_EMAIL_L ? { key: 'User L', email: process.env.AUTH_EMAIL_L, password: process.env.AUTH_PASSWORD_L || '' } : null,
   ];
 
   for (const u of additionalUsers) {
