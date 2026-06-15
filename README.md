@@ -18,8 +18,9 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 | TC-07 | Response Format (code=10027) | tc07-response-format.spec.ts | ✅ |
 | TC-08 | ADMIN Exempt | tc08-admin-exempt.spec.ts | ✅ |
 | TC-09 | Multi-Pod State (MongoDB) | (ต้องมี 2+ pods) | ⬜ ข้าม |
+| TC-10 | ClearRateLimit Correctness (ACC-1427 Redis) | tc10-clear-ratelimit.spec.ts | ✅ |
 
-**สรุป:** ผ่าน 7/9 | ข้าม 2/9
+**สรุป:** ผ่าน 8/10 | ข้าม 2/10
 
 ## Project Structure
 
@@ -36,11 +37,16 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 │   └── billing-note.client.ts   # Billing note endpoints
 ├── config/
 │   └── env.ts                   # Environment settings
+├── common/
+│   └── utils.ts                 # parseRateLimitHeaders, waitForRateLimitReset
 ├── validators/
 │   └── rate-limit.validators.ts # Centralized assertions
 ├── tests/
-│   ├── helpers/
-│   │   └── rate-limit-analyzer.ts # Token cache & burst testing
+│   ├── helpers/                 # สิ่งที่ spec เรียก (แยกตามหน้าที่)
+│   │   ├── burst.ts             # burstTest, analyzeRateLimitResults, ipBlocked
+│   │   ├── auth-helpers.ts      # getFreshToken, clearRateLimitForUser, refreshAccessToken
+│   │   ├── test-users.ts        # TC06_USERS (test data)
+│   │   └── rate-limit-analyzer.ts # index — re-export 3 ไฟล์บน (import เดิมยังใช้ได้)
 │   └── rate-limit/
 │       ├── tc01-auth-signin.spec.ts      # TC-01
 │       ├── tc02-window-reset.spec.ts     # TC-02
@@ -48,9 +54,35 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 │       ├── tc05-user-isolation.spec.ts   # TC-05
 │       ├── tc06-standard-routes.spec.ts  # TC-06 (consolidated)
 │       ├── tc07-response-format.spec.ts  # TC-07
-│       └── tc08-admin-exempt.spec.ts     # TC-08
+│       ├── tc08-admin-exempt.spec.ts     # TC-08
+│       └── tc10-clear-ratelimit.spec.ts  # TC-10 (ACC-1427 Redis)
 └── global-setup.ts             # Token cache pre-fetch
 ```
+
+## How It Works (Flow)
+
+แต่ละ spec = 1 scenario. ขั้นตอน 1 test:
+
+```
+global-setup.ts          login ทุก user ล่วงหน้า → cache token (tests/helpers/token-cache.json)
+   ↓
+tcNN-*.spec.ts           describe/test — เรียก helper
+   ↓
+burst.ts burstTest()     ยิง endpoint รัวๆ (fetch ผ่าน api/*.client) จนเจอ 429 หรือครบ burstSize
+   ↓
+analyzeRateLimitResults()  สรุป: โดน limit ไหม / ครั้งที่เท่าไหร่ / code 10027?
+   + validators/
+   ↓
+expect()                 assert
+```
+
+**Layer:**
+- `tests/rate-limit/*.spec.ts` — scenario + assertions (อ่านไฟล์เดียวจบ 1 เคส)
+- `tests/helpers/` — `burst` (ยิง+วิเคราะห์) · `auth-helpers` (token + เคลียร์ state) · `test-users` (data)
+- `api/*.client.ts` — เรียก endpoint จริง (AuthClient, BillingNoteClient)
+- `config/env.ts` — base URL + env (SIT) · `validators/` — assert response format
+
+**เพิ่มเทสใหม่:** สร้าง `tcNN-xxx.spec.ts` → `import { burstTest } from '../helpers/burst'` → เพิ่ม glob ใน `playwright.config.ts` `testMatch`
 
 ## Rate Limit Tiers (from ACC-1138)
 

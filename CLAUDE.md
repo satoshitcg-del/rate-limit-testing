@@ -27,9 +27,13 @@ project/
 │   │   ├── tc05-user-isolation.spec.ts
 │   │   ├── tc06-standard-routes.spec.ts  # Consolidated (was 6 files)
 │   │   ├── tc07-response-format.spec.ts
-│   │   └── tc08-admin-exempt.spec.ts
-│   └── helpers/
-│       └── rate-limit-analyzer.ts       # Token cache & burst testing
+│   │   ├── tc08-admin-exempt.spec.ts
+│   │   └── tc10-clear-ratelimit.spec.ts  # ClearRateLimit (ACC-1427 Redis)
+│   └── helpers/                          # split by job
+│       ├── burst.ts                      # burstTest, analyzeRateLimitResults, ipBlocked
+│       ├── auth-helpers.ts               # getFreshToken, clearRateLimitForUser, refreshAccessToken
+│       ├── test-users.ts                 # TC06_USERS
+│       └── rate-limit-analyzer.ts        # index — re-exports the 3 above
 ├── global-setup.ts         # Token cache pre-fetch (65s delay between users)
 ├── .env                    # Environment variables (git ignored)
 ├── .env.example            # Template for env variables
@@ -158,7 +162,7 @@ await authClient.clearRateLimit();      // Clear IP-based limit (strict tier)
 ## Token Caching
 
 `global-setup.ts` pre-fetches tokens before tests:
-- Uses `getFreshToken()` from rate-limit-analyzer.ts
+- Uses `getFreshToken()` from helpers/auth-helpers.ts (also re-exported via rate-limit-analyzer.ts)
 - 65s delay between users to avoid IP rate limit (5 req/min)
 - File cache at `tests/helpers/token-cache.json` (1 hour expiry, 30 min buffer before refresh)
 - CI automatically clears cache before each run to prevent 401 errors
