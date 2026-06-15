@@ -10,6 +10,3 @@
  */
 export * from './burst';
 export * from './auth-helpers';
-
-// Re-export waitForRateLimitReset from common utils
-export { waitForRateLimitReset } from '../../common/utils';

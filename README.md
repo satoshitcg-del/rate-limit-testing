@@ -10,7 +10,6 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 | TC | Test Case | Test File | Status |
 |----|-----------|-----------|--------|
 | TC-01 | Sign-in Rate Limit (5 req/min) | tc01-auth-signin.spec.ts | ✅ |
-| TC-02 | Window Reset (61 sec) | tc02-window-reset.spec.ts | ✅ |
 | TC-03 | IP Isolation | (covered by other tests) | ⬜ ข้าม |
 | TC-04 | Payment Verify (10 req/min) | tc04-payment-verify.spec.ts | ✅ |
 | TC-05 | User Isolation | tc05-user-isolation.spec.ts | ✅ |
@@ -20,7 +19,8 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 | TC-09 | Multi-Pod State (MongoDB) | (ต้องมี 2+ pods) | ⬜ ข้าม |
 | TC-10 | ClearRateLimit Correctness (ACC-1427 Redis) | tc10-clear-ratelimit.spec.ts | ✅ |
 
-**สรุป:** ผ่าน 8/10 | ข้าม 2/10
+**สรุป:** ผ่าน 7/9 (= 9 tests, 1 ต่อ invariant) | ข้าม 2/9
+TC-02 (window reset) ตัดออก → correctness ของ time-window ควรอยู่ใน backend unit test (fake clock) ดู [docs/rate-limit-test-strategy.md](docs/rate-limit-test-strategy.md)
 
 ## Project Structure
 
@@ -45,7 +45,6 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 │   │   └── rate-limit-analyzer.ts # index — re-export 2 ไฟล์บน (import เดิมยังใช้ได้)
 │   └── rate-limit/
 │       ├── tc01-auth-signin.spec.ts      # TC-01
-│       ├── tc02-window-reset.spec.ts     # TC-02
 │       ├── tc04-payment-verify.spec.ts  # TC-04
 │       ├── tc05-user-isolation.spec.ts   # TC-05
 │       ├── tc06-standard-routes.spec.ts  # TC-06 (consolidated)

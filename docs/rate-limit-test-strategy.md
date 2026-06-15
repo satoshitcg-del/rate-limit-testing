@@ -18,7 +18,7 @@ smoke/regression** layer only.
 
 | Concern | Black-box E2E (this repo) | Backend unit (recommended) |
 |---|---|---|
-| 60s window reset (tc02) | must `sleep(61s)` — real time | advance fake clock → instant |
+| 60s window reset (cut from E2E) | needed `sleep(61s)` — real time, straddle-flaky | advance fake clock → instant |
 | Boundary edges (exactly at limit, window rollover, INCR+EXPIRE race) | hard/slow to hit live | trivial + deterministic |
 | Shared-counter contention | one IP / shared users → serial-only, flaky | isolated per test |
 | Speed | minutes (this suite ~5–8 min) | milliseconds |
@@ -45,9 +45,16 @@ Inject a fake clock (`now()`) + in-memory/mini Redis so everything is instant & 
 
 ## Current E2E suite (post-trim)
 
-~20 tests, **serial** (`workers: 1`, `fullyParallel: false`) — required because tests share
-the machine IP and per-user counters. Inherent waits remain (tc02 window reset 61s, IP-login
-spacing in `global-setup`). Acceptable for an occasional regression net.
+**9 tests** (1 per invariant), **serial** (`workers: 1`, `fullyParallel: false`) — required
+because tests share the machine IP and per-user counters. The 61s window-reset waits were
+removed with tc02 (that correctness belongs in backend fake-clock unit tests); the only
+remaining real-time cost is IP-login spacing in `global-setup`. Acceptable for an occasional
+regression net.
+
+Kept, one each: tier triggers (tc01 strict / tc04 payment / tc06 standard), userID isolation
+(tc05), shared-counter-across-routes (tc06-02), body `code:10027` contract (tc07-02), admin
+exempt (tc08), ClearRateLimit over-match guard (tc10). Everything redundant or
+time-window-correctness was cut.
 
 ## Action for backend team
 

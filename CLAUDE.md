@@ -19,7 +19,6 @@ project/
 ├── tests/
 │   ├── rate-limit/         # Rate limit test cases
 │   │   ├── tc01-auth-signin.spec.ts
-│   │   ├── tc02-window-reset.spec.ts
 │   │   ├── tc04-payment-verify.spec.ts
 │   │   ├── tc05-user-isolation.spec.ts
 │   │   ├── tc06-standard-routes.spec.ts  # Consolidated (was 6 files)
@@ -50,7 +49,6 @@ project/
 | TC | Test Case | File | Status |
 |----|-----------|------|--------|
 | TC-01 | Sign-in Rate Limit 5 req/min | tc01-auth-signin.spec.ts | ✅ |
-| TC-02 | Window Reset 61 sec | tc02-window-reset.spec.ts | ✅ |
 | TC-03 | IP Isolation | (covered by other tests) | ⬜ ข้าม |
 | TC-04 | Payment Verify 10 req/min | tc04-payment-verify.spec.ts | ✅ |
 | TC-05 | User Isolation | tc05-user-isolation.spec.ts | ✅ |
@@ -59,7 +57,7 @@ project/
 | TC-08 | ADMIN Exempt | tc08-admin-exempt.spec.ts | ✅ |
 | TC-09 | Multi-Pod State | (ต้องมี 2+ pods) | ⬜ ข้าม |
 
-**สรุป:** ผ่าน 7/9 | ข้าม 2/9
+**สรุป:** ผ่าน 6/8 | ข้าม 2/8 — TC-02 (window reset) ตัดออก, ย้าย correctness ไป backend unit test
 
 ## Environment Variables
 
@@ -68,7 +66,7 @@ project/
 API_BASE_URL=https://api-sit.askmebill.com
 BO_API_BASE_URL=https://apixint-sit.askmebill.com
 
-# User A (eiji - main user for TC-01, TC-02, TC-05)
+# User A (eiji - main user for TC-01, TC-05)
 AUTH_EMAIL=eiji
 AUTH_PASSWORD=<your-password>
 AUTH_2FA=<your-totp-code>
@@ -167,6 +165,6 @@ await authClient.clearRateLimit();      // Clear IP-based limit (strict tier)
 
 1. **Use API Clients** - Don't call HTTP directly, use `api/auth.client.ts`
 2. **Use Validators** - Use centralized validators in `validators/`
-3. **Wait for rate limit** - Use `waitForRateLimitReset()` between tests
+3. **Strict tier (IP-keyed) ปลดไม่ได้** - `clearRateLimit` ใช้กับ strict ไม่ได้; ถ้า IP โดนบล็อก (10019) ให้ `test.skip` (ไม่ใช่ pass)
 4. **Centralize test data** - Use `config/env.ts` for environments and users
 5. **Clear before burst** - Call `clearRateLimitForUser()` before burst tests

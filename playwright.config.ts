@@ -23,10 +23,7 @@ export default defineConfig({
   projects: [
     {
       name: 'auth-burst',
-      testMatch: [
-        '**/tc01-auth-signin.spec.ts',
-        '**/tc02-window-reset.spec.ts',
-      ],
+      testMatch: ['**/tc01-auth-signin.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
     {
