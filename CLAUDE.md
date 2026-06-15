@@ -11,14 +11,11 @@
 ```
 project/
 ├── api/                    # API Client classes
-│   ├── auth.client.ts      # Authentication endpoints
-│   └── billing-note.client.ts # Billing note endpoints
+│   └── auth.client.ts      # Authentication endpoints
 ├── common/                 # Shared utilities
-│   └── utils.ts            # Logger, wait, helpers
+│   └── utils.ts            # Logger, wait, waitForRateLimitReset
 ├── config/                 # Configuration
 │   └── env.ts              # Environment settings
-├── validators/             # Centralized assertions
-│   └── rate-limit.validators.ts
 ├── tests/
 │   ├── rate-limit/         # Rate limit test cases
 │   │   ├── tc01-auth-signin.spec.ts

@@ -33,7 +33,6 @@ export interface BurstTestConfig {
   burstSize?: number;
   body?: object;
   requestContext?: APIRequestContext;
-  uploadFile?: { path: string; fieldName: string; mimeType?: string };
   refreshToken?: () => Promise<string | undefined>; // Optional: callback to get fresh token on 401
 }
 
@@ -70,7 +69,7 @@ function getDefaultHeaders(token?: string): Record<string, string> {
 
 export async function burstTest(config: BurstTestConfig): Promise<RateLimitResult[]> {
   const baseURL = config.baseURL || getApiBaseUrl();
-  const { endpoint, method, token, burstSize = 100, body, requestContext, uploadFile, refreshToken } = config;
+  const { endpoint, method, token, burstSize = 100, body, requestContext, refreshToken } = config;
   const results: RateLimitResult[] = [];
 
   const ctx = requestContext || await request.newContext();
@@ -85,28 +84,11 @@ export async function burstTest(config: BurstTestConfig): Promise<RateLimitResul
     let rateLimitMessage: string | undefined;
 
     try {
-      let response: APIResponse;
-
-      if (uploadFile) {
-        const { path, fieldName, mimeType } = uploadFile;
-        const fs = require('fs');
-        response = await doRequest(`${baseURL}${endpoint}`, {
-          multipart: {
-            [fieldName]: {
-              name: path.split(/[\\/]/).pop() || 'file',
-              mimeType: mimeType || 'image/jpeg',
-              buffer: fs.readFileSync(path),
-            },
-          },
-          headers,
-        });
-      } else {
-        headers['Content-Type'] = 'application/json';
-        response = await doRequest(`${baseURL}${endpoint}`, {
-          ...(body && { data: body }),
-          headers,
-        });
-      }
+      headers['Content-Type'] = 'application/json';
+      const response: APIResponse = await doRequest(`${baseURL}${endpoint}`, {
+        ...(body && { data: body }),
+        headers,
+      });
 
       statusCode = response.status();
       const rlHeaders = extractRateLimitInfo(response);

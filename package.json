@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "playwright test",
-    "test:auth": "playwright test tests/rate-limit/auth.spec.ts",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "report": "playwright show-report"

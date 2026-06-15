@@ -33,14 +33,11 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 ├── .env                         # Environment variables (git ignored)
 ├── .env.example                 # Environment template
 ├── api/                         # API Client classes
-│   ├── auth.client.ts           # Authentication endpoints
-│   └── billing-note.client.ts   # Billing note endpoints
+│   └── auth.client.ts           # Authentication endpoints
 ├── config/
 │   └── env.ts                   # Environment settings
 ├── common/
-│   └── utils.ts                 # parseRateLimitHeaders, waitForRateLimitReset
-├── validators/
-│   └── rate-limit.validators.ts # Centralized assertions
+│   └── utils.ts                 # Logger, wait, waitForRateLimitReset
 ├── tests/
 │   ├── helpers/                 # สิ่งที่ spec เรียก (แยกตามหน้าที่)
 │   │   ├── burst.ts             # burstTest, analyzeRateLimitResults, ipBlocked
@@ -71,7 +68,6 @@ tcNN-*.spec.ts           describe/test — เรียก helper
 burst.ts burstTest()     ยิง endpoint รัวๆ (fetch ผ่าน api/*.client) จนเจอ 429 หรือครบ burstSize
    ↓
 analyzeRateLimitResults()  สรุป: โดน limit ไหม / ครั้งที่เท่าไหร่ / code 10027?
-   + validators/
    ↓
 expect()                 assert
 ```
@@ -79,8 +75,8 @@ expect()                 assert
 **Layer:**
 - `tests/rate-limit/*.spec.ts` — scenario + assertions (อ่านไฟล์เดียวจบ 1 เคส)
 - `tests/helpers/` — `burst` (ยิง+วิเคราะห์) · `auth-helpers` (token + เคลียร์ state) · `test-users` (data)
-- `api/*.client.ts` — เรียก endpoint จริง (AuthClient, BillingNoteClient)
-- `config/env.ts` — base URL + env (SIT) · `validators/` — assert response format
+- `api/auth.client.ts` — เรียก endpoint จริง (AuthClient)
+- `config/env.ts` — base URL + env (SIT)
 
 **เพิ่มเทสใหม่:** สร้าง `tcNN-xxx.spec.ts` → `import { burstTest } from '../helpers/burst'` → เพิ่ม glob ใน `playwright.config.ts` `testMatch`
 
