@@ -190,6 +190,15 @@ export function analyzeRateLimitResults(results: RateLimitResult[]): {
   };
 }
 
+/**
+ * IP/admin block detector. When sign-in (strict tier) is blocked by admin code 10019,
+ * responses are 400 with no 429 — rate-limit behavior can't be exercised, so callers skip.
+ */
+export function ipBlocked(results: { statusCode: number }[]): boolean {
+  const codes = results.map((r) => r.statusCode);
+  return codes.some((s) => s === 400) && !codes.some((s) => s === 429);
+}
+
 // Re-export waitForRateLimitReset from common utils
 export { waitForRateLimitReset } from '../../common/utils';
 

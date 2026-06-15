@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { burstTest } from '../helpers/rate-limit-analyzer';
+import { burstTest, ipBlocked } from '../helpers/rate-limit-analyzer';
 import { getApiBaseUrl } from '../../config/env';
 import { authClient } from '../../api/auth.client';
 
@@ -77,9 +77,7 @@ test.describe('TC-02: Window Reset', () => {
     });
 
     // sign-in อาจถูก admin block (10019 → 400 ไม่มี 429) → ทดสอบ reset ไม่ได้
-    const codes = results.map(r => r.statusCode);
-    const ipAdminBlocked = codes.some(s => s === 400) && !codes.some(s => s === 429);
-    test.skip(ipAdminBlocked, 'IP ถูกบล็อก (10019) — ทดสอบ window reset ไม่ได้ (ไม่ใช่ pass)');
+    test.skip(ipBlocked(results), 'IP ถูกบล็อก (10019) — ทดสอบ window reset ไม่ได้ (ไม่ใช่ pass)');
 
     const firstWindowLimited = results.some(r => r.isRateLimited);
     expect(firstWindowLimited, 'window แรกต้องโดน rate limit ก่อนทดสอบ reset').toBe(true);

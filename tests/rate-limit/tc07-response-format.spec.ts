@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { burstTest } from '../helpers/rate-limit-analyzer';
+import { burstTest, ipBlocked } from '../helpers/rate-limit-analyzer';
 import { getApiBaseUrl } from '../../config/env';
 import { authClient } from '../../api/auth.client';
 
@@ -24,13 +24,6 @@ test.describe('TC-07: Response Format when Rate Limited', () => {
     if (!token) return undefined;
     const totpResp = await authClient.verifyTotp(token, credentials.totp, true);
     return totpResp?.data?.token || token;
-  }
-
-  // sign-in (strict tier) อาจถูก admin block ด้วย code 10019 (เห็นเป็น 400 ไม่มี 429)
-  // กรณีนี้ทดสอบ rate limit ไม่ได้ → ใช้ skip แทนที่จะ false-fail
-  function ipBlocked(results: { statusCode: number }[]): boolean {
-    const codes = results.map((r) => r.statusCode);
-    return codes.some((s) => s === 400) && !codes.some((s) => s === 429);
   }
 
   test('TC-07-01: ควรได้ 429 response format ที่ถูกต้อง', async () => {
