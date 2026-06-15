@@ -31,13 +31,10 @@ test.describe('TC-05: User Isolation', () => {
   let userBToken: string | undefined;
 
   test.beforeAll(async () => {
+    // Only two sign-ins here — well under the 5/min IP limit — so no inter-login wait is
+    // needed (a 65s wait would also exceed the 60s beforeAll-hook timeout).
     userAToken = await authClient.getTokenWithTotp(userA);
     console.log(`[DEBUG] userA token: ${userAToken ? 'OK' : 'FAILED'}`);
-    // wait 65s before userB sign-in to avoid the strict (IP) sign-in limit
-    if (userAToken) {
-      console.log('[DEBUG] Waiting 65s before userB sign-in to avoid IP rate limit...');
-      await new Promise((r) => setTimeout(r, 65000));
-    }
     userBToken = await authClient.getTokenWithTotp(userB);
     console.log(`[DEBUG] userB token: ${userBToken ? 'OK' : 'FAILED'}`);
   });
