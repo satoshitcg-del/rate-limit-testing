@@ -16,6 +16,7 @@ playwright/.cache/
 # Claude Code
 .agents/
 skills-lock.json
+.understand-anything/
 
 # IDE
 .vscode/
