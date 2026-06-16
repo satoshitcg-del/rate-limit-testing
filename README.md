@@ -22,6 +22,57 @@ API Rate Limit Testing สำหรับ askmebill.com Customer API
 **สรุป:** ผ่าน 7/9 (= 9 tests, 1 ต่อ invariant) | ข้าม 2/9
 TC-02 (window reset) ตัดออก → correctness ของ time-window ควรอยู่ใน backend unit test (fake clock) ดู [docs/rate-limit-test-strategy.md](docs/rate-limit-test-strategy.md)
 
+> ผล run ล่าสุด: **8 passed / 1 skipped / 0 failed** (TC-08 skip — BO `superadmin_eiji` lockout). ทุก tier เจอ 429 จริง.
+
+## Test Cases — Step by Step
+
+9 tests, 1 ต่อ invariant. รันแบบ **serial** (`workers: 1`) เพราะ share IP + per-user counter.
+
+### TC-01-01 — Sign-in strict tier (5 req/min, key = IP)
+1. burst `POST /v1/md/auth/customer/sign-in` × 15 (ใช้ **wrong password** — rate limit นับ IP ก่อน auth จึงยังโดน, แต่ไม่ rotate session)
+2. หา response แรกที่ `isRateLimited` (429)
+- ✅ เจอ 429 ภายใน burst (ปกติ ~ครั้งที่ 6) · ถ้า IP โดน admin-block (10019 → 400 ไม่มี 429) → `test.skip` (ไม่ใช่ pass)
+
+### TC-04-01 — Payment tier (10 req/min, key = userID)
+1. `getFreshToken(eiji)` จาก cache (pre-fetch ใน global-setup)
+2. burst `POST /v1/md/billing-note/payment/verify` × 15
+- ✅ โดน 429 ที่ ~ครั้งที่ 11 (assert `rateLimitedAt ≤ 13`)
+
+### TC-05-01 — User isolation (counter แยกราย userID)
+1. cache token 2 user จริง: `eiji` (A) + `eiji2` (B)
+2. `clearRateLimitForUser` ทั้งคู่ → burst payment A × 15 → burst payment B × 15
+- ✅ ต่างคนต่างโดน 429 ที่ ~#11 (≤12) — counter ของ A กับ B แยกกัน
+
+### TC-06-01 — Standard tier (60 req/min, key = userID)
+1. `getFreshToken(eiji2)` → clear
+2. burst `GET /v1/md/user/profile` × 80
+- ✅ โดน 429 ที่ ~#61
+
+### TC-06-02 — Shared counter ข้าม route (ราย userID)
+1. clear eiji2 → burst route A (`/v1/md/user/profile`) จนโดน limit
+2. ยิง route B (`/v1/md/customer/sub-accounts`) อีก 3 ครั้ง
+- ✅ route B โดน 429 ด้วย → counter แชร์ทุก standard route ของ user เดียวกัน (path-pattern middleware)
+
+### TC-07-02 — 429 response contract
+1. burst sign-in × 15 (wrong password) จนโดน 429
+2. อ่าน `body.code` ของ response ที่โดน limit
+- ✅ `code === 10027`
+
+### TC-08-02 — Admin exempt *(ปัจจุบัน skip)*
+1. login BO `superadmin_eiji`
+2. burst BO endpoints (`/v1/customer/search`, `/v1/product/list`, ...) × 10 ต่อ endpoint
+- ✅ 429 = 0 ทุก endpoint (SUPERADMIN ยกเว้น, ACC-1138) · ⏭ ตอนนี้ skip เพราะ BO login fail (lockout code 10012)
+
+### TC-10-01 — ClearRateLimit ปลด block ได้จริง (ACC-1427)
+1. clear eiji baseline → burst payment × 15 → **ต้องโดน 429 ก่อน**
+2. `clearRateLimitForUser(eiji)` → burst payment × 3
+- ✅ หลัง clear ไม่เจอ 429 อีก (counter reset จริงหลัง migrate Redis)
+
+### TC-10-02 — ClearRateLimit ไม่ over-match (ACC-1427 — เคสสำคัญสุด)
+1. clear + block ทั้ง `eiji` (A) และ `eiji2` (B) — ตั้งใจเลือกชื่อที่ A เป็น substring ของ B
+2. clear **เฉพาะ A** → เช็ค B (3 req) → เช็ค A (3 req)
+- ✅ A หลุด block (`429 = 0`), **B ยังโดน block** — พิสูจน์ SCAN pattern `*{userId}*` ไม่ over-match (clear `eiji` ต้องไม่ลบ key ของ `eiji2`)
+
 ## Project Structure
 
 ```
@@ -114,7 +165,7 @@ npx playwright test --reporter=html
 | `AUTH_EMAIL` | Test account email (eiji) |
 | `AUTH_PASSWORD` | Test account password |
 | `AUTH_2FA` | TOTP code |
-| `AUTH_EMAIL_C-L` | Additional users for TC-06 (eiji2-eiji11) |
+| `AUTH_EMAIL_C` / `AUTH_PASSWORD_C` | Second real user (eiji2) — used by TC-05/06/10 |
 | `BO_API_BASE_URL` | BO/Admin API base URL |
 | `BO_EMAIL` | Superadmin email |
 | `BO_PASSWORD` | Superadmin password |
@@ -133,12 +184,11 @@ When rate limited (HTTP 429):
 
 ## Token Caching
 
-Tests use token caching via `global-setup.ts`:
-- Pre-fetches tokens for all users before tests
-- Caches to `tests/helpers/token-cache.json`
-- Tokens valid for 1 hour (30 min buffer before refresh)
-- Avoids IP rate limit with 65s delay between sign-ins
-- CI automatically clears cache before each run to prevent 401 errors
+`global-setup.ts` pre-fetches tokens once before the run → `tests/helpers/token-cache.json`:
+- **Expiry read from the real JWT `exp`** — the backend issues it as a *nanosecond string*, real TTL ~15 min. `loadFileCache` validates each token's actual exp and drops expired ones (no more fabricated `now + 1h`, which used to serve dead tokens → 401).
+- 65s delay between sign-ins in setup to avoid the IP rate limit.
+- **Single-session caveat:** a *successful* login rotates the session and invalidates a user's previously cached token. So specs that only need to trigger the limit (tc01/tc07 sign-in burst) use a **wrong password** — the IP limit still counts the attempt, no session rotated. Specs needing a usable token reuse the cached one.
+- Cache file is git-ignored; delete it to force a fresh fetch.
 
 ## Rate Limit Behavior (Important)
 
